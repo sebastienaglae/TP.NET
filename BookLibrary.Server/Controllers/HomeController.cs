@@ -1,20 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using BookLibrary.Server.Models;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
 using BookLibrary.Server.ViewModels;
 
 namespace BookLibrary.Server.Controllers;
 
-public class HomeController(ILogger<HomeController> logger, IMapper mapper) : Controller
+public class HomeController(ILogger<HomeController> logger) : Controller
 {
     private readonly ILogger<HomeController> _logger = logger;
-    private readonly IMapper mapper = mapper;
 
     public IActionResult Index()
     {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,7 +10,8 @@ public class Genre
     [Key]
     public int Id { get; set; }
 
-    // Mettez ici les propriété de votre livre: Nom et Livres associés
-
-    // N'oublier pas qu'un genre peut avoir plusieur livres
+    [Required, MaxLength(50)]
+    public string Name { get; set; }
+    
+    public virtual ICollection<Book> Books { get; set; }
 }

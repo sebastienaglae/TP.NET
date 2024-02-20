@@ -1,18 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using AutoMapper.QueryableExtensions;
-using AutoMapper;
 using BookLibrary.Server.Database;
 using BookLibrary.Server.Models;
 using BookLibrary.Server.ViewModels;
 
 namespace BookLibrary.Server.Controllers;
 
-public class BookController(LibraryDbContext libraryDbContext, IMapper mapper) : Controller
+public class BookController(LibraryDbContext libraryDbContext) : Controller
 {
     private readonly LibraryDbContext libraryDbContext = libraryDbContext;
 
@@ -34,6 +28,6 @@ public class BookController(LibraryDbContext libraryDbContext, IMapper mapper) :
         }
 
         // Il faut interoger la base pour récupérer tous les genres, pour que l'utilisateur puisse les slécétionné
-        return View(new CreateBookViewModel() { AllGenres = libraryDbContext.Genre });
+        return View(new CreateBookViewModel() { AllGenres = libraryDbContext.Genres });
     }
 }

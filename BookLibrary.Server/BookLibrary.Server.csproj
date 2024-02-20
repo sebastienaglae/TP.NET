@@ -10,6 +10,7 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -36,12 +37,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AutoMapper" Version="12.0.1"/>
-        <PackageReference Include="AutoMapper.Collection" Version="9.0.0"/>
-        <PackageReference Include="AutoMapper.Collection.EntityFramework" Version="9.0.0"/>
-        <PackageReference Include="AutoMapper.Extensions.EnumMapping" Version="3.1.0"/>
-        <PackageReference Include="AutoMapper.Extensions.ExpressionMapping" Version="6.0.4"/>
-        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1"/>
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.1"/>
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.1"/>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.1"/>
@@ -49,6 +44,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.1"/>
         <PackageReference Include="Microsoft.OpenApi" Version="1.6.12"/>
         <PackageReference Include="NSwag.AspNetCore" Version="14.0.2"/>
+        <PackageReference Include="Riok.Mapperly" Version="3.3.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -56,6 +52,10 @@
         <Folder Include="wwwroot\lib\jquery-validation-unobtrusive\"/>
         <Folder Include="wwwroot\lib\jquery-validation\"/>
         <Folder Include="wwwroot\lib\jquery\"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\BookLibrary.ServerPluginKit\BookLibrary.ServerPluginKit.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,5 +1,8 @@
 using BookLibrary.Server;
 using BookLibrary.Server.Database;
+using BookLibrary.Server.Dtos;
+using BookLibrary.Server.Services;
+using BookLibrary.Server.Services.Plugins;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +15,8 @@ builder.Services.AddDbContext<LibraryDbContext>(options => options.UseInMemoryDa
 builder.Services.AddControllersWithViews().AddNewtonsoftJson().AddRazorRuntimeCompilation();
 builder.Services.AddSwaggerDocument();
 
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddSingleton<DtoMapper>();
+builder.Services.AddPlugins();
 
 builder.Services.AddMvc();
 
@@ -35,6 +39,7 @@ app.UseRouting();
 app.UseAuthorization();
 app.UseOpenApi();
 app.UseSwaggerUi();
+app.UsePlugins();
 app.MapControllerRoute(
     "default",
     "{controller=Home}/{action=Index}/{id?}");

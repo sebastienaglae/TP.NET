@@ -1,12 +1,29 @@
-﻿using BookLibrary.Server.Models;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using AutoMapper;
+﻿namespace BookLibrary.Server.Dtos;
 
-namespace BookLibrary.Server.Dtos;
+public record struct BookDto(
+    int Id,
+    string Title,
+    BookAuthorDto[] Authors,
+    string Description,
+    decimal Price,
+    BookGenreDto[] Genres
+);
 
-public class BookDto
-{
-    public int Id { get; set; }
-}
+public record struct BookGenreDto(
+    int Id,
+    string Name
+);
+
+public record struct BookAuthorDto(
+    int Id,
+    string FirstName,
+    string LastName
+);
+
+public record struct BookListEntryDto(
+    int Id,
+    string Title,
+    BookAuthorDto[] Authors,
+    decimal Price,
+    BookGenreDto[] Genres
+);
