@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Intrinsics.Arm;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -45,6 +46,9 @@ public class DbInitializer
             new() { Name = "Pride and Prejudice", Authors = new List<Author> { authors[2], authors[3] }, Price = 9.99m, Genres = new List<Genre> { genres[3] }, Content = GenerateDummyContent(1000) }
         };
         bookDbContext.AddRange(books);
+        
+        var adminUser = new IdentityUser { UserName = "admin", PasswordHash = BitConverter.ToString(SHA256.HashData("password"u8)) };
+        bookDbContext.Add(adminUser);
 
         bookDbContext.SaveChanges();
     }
