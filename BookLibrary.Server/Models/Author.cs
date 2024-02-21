@@ -7,11 +7,9 @@ public class Author
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Key]
-    public int Id { get; set; }
+    public int Id { get; init; }
 
-    [Required, MaxLength(50)]
-    public string FirstName { get; set; }
-    
-    [Required, MaxLength(50)]
-    public string LastName { get; set; }
+    [Required] [MaxLength(50)] public string FirstName { get; set; }
+
+    [Required] [MaxLength(50)] public string LastName { get; set; }
 }

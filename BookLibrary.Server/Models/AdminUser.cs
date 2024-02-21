@@ -8,10 +8,8 @@ public class AdminUser
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Key]
     public int Id { get; set; }
-    
-    [Required]
-    public string UserName { get; set; }
-    
-    [Required]
-    public string PasswordHash { get; set; }
+
+    [Required] public string UserName { get; set; }
+
+    [Required] public string PasswordHash { get; set; }
 }

@@ -1,37 +1,61 @@
-﻿@using BookLibrary.Server.Controllers
-@using BookLibrary.Server.ViewModels
-@model CreateBookViewModel
+﻿@model BookLibrary.Server.ViewModels.CreateBookViewModel
 @{
     ViewData["Title"] = "Add a book";
 }
-<style>
-.input-group {
-    margin-top:10px;
-    display:flex;
-    justify-content:space-between;
-    flex-wrap:wrap;
-}
-input, textarea, select {
-    flex-basis:85%;
-}
-label {
-    flex-basis:10%;
-}
-</style>
+<div class="card">
+    <div class="card-header">
+        <i class="icon-plus"></i> Add a book
+    </div>
+    <div class="card-body">
+        <h2 class="text-center mt-3">Create a new book</h2>
+        <form method="post" asp-action="Create">
+            <div class="form-group">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control"/>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="Genres">
+                    Genres
+                </label>
+                <div class="dropdown">
+                    <input id="Genres" name="Genres" type="text" class="form-control" autocomplete="off" data-toggle="dropdown"/>
+                    <div id="genreList" class="dropdown-menu"></div>
+                </div>
+                <div id="selectedGenres" class="d-flex flex-wrap"></div>
+                <small class="form-text text-muted">You can add multiple genres, when autocomplete shows the genre you want, click on it to add it to the list.</small>
+                <span asp-validation-for="GenreIds" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="Authors">Authors</label>
+                <div class="dropdown">
+                    <input id="Authors" name="Authors" type="text" class="form-control" autocomplete="off" data-toggle="dropdown"/>
+                    <div id="authorList" class="dropdown-menu"></div>
+                </div>
+                <div id="selectedAuthors" class="d-flex flex-wrap"></div>
+                <small class="form-text text-muted">You can add multiple authors, when autocomplete shows the author you want, click on it to add it to the list.</small>
+                <span asp-validation-for="AuthorIds" class="text-danger"></span>
+            </div>
 
-<!-- Voici une facon de faire, mais ce n'est pas la seul, a vous de jouer ! -->
-<form asp-controller="Book" asp-action="Create">
-    <div class="input-group">
-        <label asp-for="Name"></label>
-        <input asp-for="Name"/>
+            <div class="form-group">
+                <label asp-for="Content" for="Content">Content</label>
+                <textarea asp-for="Content" id="Content" name="Content" class="form-control"></textarea>
+                <small class="form-text text-muted">You can resize the textarea by dragging the bottom right corner.</small>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" for="Price">Price</label>
+                <input asp-for="Price" id="Price" name="Price" type="number" step="0.01" min="0" class="form-control"/>
+            </div>
+            <input type="submit" value="Add" class="btn btn-primary"/>
+        </form>
     </div>
-    <span asp-validation-for="Name" class="text-danger"></span>
-    <div class="input-group">
-        <label asp-for="Genres"></label>
-        <!--Si la page rend une erreur a cette ligne, c'est que vous n'avez pas envoyé la liste des genres dans le Controller !!! ! -->
-        <select asp-for="Genres" asp-items="@(new SelectList(Model.AllGenres, "Id", "Id"))">
-        </select>
-    </div>
-    <span asp-validation-for="Genres" class="text-danger"></span>
-    <input type="submit" value="Add" style="width: 100%; margin-top: 50px"/>
-</form>
+</div>
+
+@section Scripts {
+    <script>
+        const authors = @Json.Serialize(Model.Authors);
+        const genres = @Json.Serialize(Model.Genres);
+    </script>
+    <script src="~/js/book.js"></script>
+}

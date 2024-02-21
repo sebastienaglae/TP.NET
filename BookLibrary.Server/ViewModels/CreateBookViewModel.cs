@@ -1,23 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using BookLibrary.Server.Models;
 
 namespace BookLibrary.Server.ViewModels;
 
-// Un ViewModel représente le contenu envoyé à la vu mais aussi le contenu récupéré a travers une requète HTTP:
-// -> /api/1.0.0/xxx?prop1=123&prop2=azerty&prop3[]=0&prop3[]=1
 public class CreateBookViewModel
 {
-    [Required] public string Name { get; set; }
+    [Required(ErrorMessage = "The Name field is required.")]
+    public string Name { get; init; }
 
-    // Ajouter ici tous les champ que l'utilisateur devra remplir pour ajouter un livre
+    [Required(ErrorMessage = "The Content field is required.")]
+    public string Content { get; init; }
 
-    // Liste des genres séléctionné par l'utilisateur
-    [Required(ErrorMessage = "You need at least 1 genre")]
-    [MinLength(1)]
-    public IEnumerable<int> Genres { get; set; }
+    [Required(ErrorMessage = "The Price field is required.")]
+    public decimal Price { get; init; }
 
-    // Liste des genres a afficher à l'utilisateur
-    public IEnumerable<Genre> AllGenres { get; init; }
+    [Required(ErrorMessage = "At least one genre must be selected.")]
+    public List<int> GenreIds { get; init; }
+
+    [Required(ErrorMessage = "At least one author must be selected.")]
+    public List<int> AuthorIds { get; init; }
+
+    public ICollection<IdKeyValue> Genres { get; set; }
+
+    public ICollection<IdKeyValue> Authors { get; set; }
 }

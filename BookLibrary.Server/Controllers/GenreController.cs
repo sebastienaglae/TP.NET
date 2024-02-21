@@ -1,11 +1,34 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using BookLibrary.Server.Database;
+﻿using BookLibrary.Server.Database;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BookLibrary.Server.Controllers;
 
-public class GenreController(LibraryDbContext libraryDbContext) : Controller
+public class GenreController : Controller
 {
-    private readonly LibraryDbContext libraryDbContext = libraryDbContext;
+    private readonly LibraryDbContext _context;
 
-    // A vous de faire comme BookController.List mais pour les genres !
+    public GenreController(LibraryDbContext libraryDbContext)
+    {
+        _context = libraryDbContext;
+    }
+
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    public IActionResult Edit(int id)
+    {
+        return View();
+    }
+
+    public IActionResult List()
+    {
+        return View();
+    }
+
+    public IActionResult Details(int id)
+    {
+        return View();
+    }
 }

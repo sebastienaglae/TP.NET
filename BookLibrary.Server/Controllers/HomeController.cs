@@ -1,20 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using BookLibrary.Server.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace BookLibrary.Server.Controllers;
 
 public class HomeController(ILogger<HomeController> logger) : Controller
 {
-    private readonly ILogger<HomeController> _logger = logger;
-
     public IActionResult Index()
-    {
-        return View();
-    }
-
-    public IActionResult Privacy()
     {
         return View();
     }
@@ -23,5 +16,15 @@ public class HomeController(ILogger<HomeController> logger) : Controller
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+
+    public IActionResult StatusCode(string code)
+    {
+        return code switch
+        {
+            "404" => View("~/Views/404.cshtml"),
+            "500" => View("~/Views/500.cshtml"),
+            _ => View("Error")
+        };
     }
 }

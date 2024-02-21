@@ -1,12 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using Microsoft.CodeAnalysis;
-using System.Diagnostics;
-using BookLibrary.Server.Models;
+﻿using BookLibrary.Server.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookLibrary.Server.Database;
 
@@ -15,4 +8,6 @@ public class LibraryDbContext(DbContextOptions<LibraryDbContext> options) : DbCo
     public DbSet<Book> Books { get; set; }
     public DbSet<Genre> Genres { get; set; }
     public DbSet<Author> Authors { get; set; }
+
+    public DbSet<AdminUser> AdminUsers { get; set; }
 }

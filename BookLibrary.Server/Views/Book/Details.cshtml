@@ -1,0 +1,48 @@
+﻿@model BookLibrary.Server.ViewModels.DetailsBookViewModel
+@{
+    ViewData["Title"] = "Book Details";
+}
+
+<div class="book-cover">
+    <h1 class="book-title">@Model.Name</h1>
+    <h2 class="book-authors">@string.Join(", ", Model.Authors)</h2>
+    <h3 class="book-genres">@string.Join(", ", Model.Genres)</h3>
+</div>
+
+<div class="card-body">
+    <div class="book-content">
+        <p>@Model.Content</p>
+    </div>
+</div>
+
+<style>
+    .book-cover {
+        background-color: #f4f4f4;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+    }
+
+    .book-title {
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+
+    .book-authors {
+        font-size: 1.5em;
+        color: #666;
+        margin-bottom: 10px;
+    }
+
+    .book-genres {
+        font-size: 1.2em;
+        color: #999;
+    }
+
+     .book-content {
+            font-size: 1em;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+</style>

@@ -1,0 +1,23 @@
+﻿
+.chip {
+    display: inline-block;
+    font-weight: bold;
+    color: white;
+    padding: 0 25px;
+    font-size: 15px;
+    line-height: 25px;
+    border-radius: 25px;
+    background-color: lightskyblue;
+    margin: 5px;
+}
+
+.chip .closebtn {
+    float: right;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+form {
+    max-width: 600px;
+    margin: 0 auto;
+}

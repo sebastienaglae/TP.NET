@@ -1,33 +1,179 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using BookLibrary.Server.Database;
 using BookLibrary.Server.Models;
 using BookLibrary.Server.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookLibrary.Server.Controllers;
 
-public class BookController(LibraryDbContext libraryDbContext) : Controller
+public class BookController : Controller
 {
-    private readonly LibraryDbContext libraryDbContext = libraryDbContext;
+    private readonly LibraryDbContext _context;
 
-    public ActionResult<IEnumerable<Book>> List()
+    public BookController(LibraryDbContext context)
     {
-        // récupérer les livres dans la base de donées pour qu'elle puisse être affiché
-        IEnumerable<Book> ListBooks = libraryDbContext.Books;
-        return View(ListBooks);
+        _context = context;
     }
 
-    public ActionResult<CreateBookViewModel> Create(CreateBookViewModel book)
+    public async Task<IActionResult> List(int itemsPerPage = 10, int page = 1)
     {
-        // Le IsValid est True uniquement si tous les champs de CreateBookModel marqués Required sont remplis
-        if (ModelState.IsValid)
+        itemsPerPage = Math.Max(itemsPerPage, 1);
+        itemsPerPage = Math.Min(itemsPerPage, 100);
+        page = Math.Max(page, 1);
+
+        var totalPages = GetTotalPage(itemsPerPage);
+
+        page = Math.Min(page, totalPages);
+
+        var books = _context.Books
+            .OrderBy(b => b.Name)
+            .Skip((page - 1) * itemsPerPage)
+            .Take(itemsPerPage)
+            .Include(b => b.Authors)
+            .Include(b => b.Genres);
+
+        var booksResults = await books.ToListAsync();
+        var paginationResults = new PaginationInfo(page, itemsPerPage, totalPages);
+        var model = new BookResultsViewModel(booksResults, paginationResults);
+
+        return View(model);
+    }
+
+    private int GetTotalPage(int itemsPerPage)
+    {
+        return (int)Math.Ceiling(_context.Books.Count() / (double)itemsPerPage);
+    }
+
+    public IActionResult Create()
+    {
+        var model = new CreateBookViewModel
         {
-            // Completer la création du livre avec toute les information nécéssaire que vous aurez ajoutez, et metter la liste des gener récupéré de la base aussi
-            libraryDbContext.Add(new Book() { });
-            libraryDbContext.SaveChanges();
+            Name = "Book Name",
+            Content = "Book Content",
+            Price = 10.0m
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateBookViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            FillAuthorsAndGenres(model);
+            return View(model);
         }
 
-        // Il faut interoger la base pour récupérer tous les genres, pour que l'utilisateur puisse les slécétionné
-        return View(new CreateBookViewModel() { AllGenres = libraryDbContext.Genres });
+        var book = new Book
+        {
+            Name = model.Name,
+            Content = model.Content,
+            Price = model.Price,
+            Genres = _context.Genres.Where(g => model.GenreIds.Contains(g.Id)).ToList(),
+            Authors = _context.Authors.Where(a => model.AuthorIds.Contains(a.Id)).ToList()
+        };
+
+        _context.Books.Add(book);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("List");
+    }
+
+    public IActionResult Delete(int id)
+    {
+        var book = _context.Books.Find(id);
+        if (book is null) return NotFound();
+
+        _context.Books.Remove(book);
+        _context.SaveChanges();
+
+        return RedirectToAction("List");
+    }
+
+    public IActionResult Edit(int id)
+    {
+        var book = _context.Books
+            .Include(b => b.Authors)
+            .Include(b => b.Genres)
+            .FirstOrDefault(b => b.Id == id);
+        if (book is null) return NotFound();
+
+        var model = new EditBookViewModel
+        {
+            Id = book.Id,
+            Name = book.Name,
+            Content = book.Content,
+            Price = book.Price,
+            GenreIds = book.Genres.Select(g => g.Id).ToList(),
+            AuthorIds = book.Authors.Select(a => a.Id).ToList()
+        };
+
+        FillAuthorsAndGenres(model);
+
+        return View(model);
+    }
+
+    private void FillAuthorsAndGenres(CreateBookViewModel model)
+    {
+        if (model.AuthorIds is not null)
+            model.Authors = _context.Authors.Where(a => model.AuthorIds.Contains(a.Id)).ToList()
+                .Select(a => new IdKeyValue { Key = a.Id, Value = a.FirstName + " " + a.LastName }).ToList();
+
+        if (model.GenreIds is not null)
+            model.Genres = _context.Genres.Where(g => model.GenreIds.Contains(g.Id)).ToList()
+                .Select(g => new IdKeyValue { Key = g.Id, Value = g.Name }).ToList();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Edit(EditBookViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            FillAuthorsAndGenres(model);
+            return View(model);
+        }
+
+        var book = _context.Books
+            .Include(b => b.Authors)
+            .Include(b => b.Genres)
+            .FirstOrDefault(b => b.Id == model.Id);
+
+        if (book is null) return NotFound();
+
+        book.Name = model.Name;
+        book.Content = model.Content;
+        book.Price = model.Price;
+        book.Genres = _context.Genres.Where(g => model.GenreIds.Contains(g.Id)).ToList();
+        book.Authors = _context.Authors.Where(a => model.AuthorIds.Contains(a.Id)).ToList();
+
+        _context.Books.Update(book);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("List");
+    }
+
+    public IActionResult Details(int id)
+    {
+        var book = _context.Books
+            .Include(b => b.Authors)
+            .Include(b => b.Genres)
+            .FirstOrDefault(b => b.Id == id);
+        if (book is null) return NotFound();
+
+        var model = new DetailsBookViewModel
+        {
+            Id = book.Id,
+            Name = book.Name,
+            Content = book.Content,
+            Price = book.Price,
+            Authors = book.Authors.Select(a => a.FirstName + " " + a.LastName).ToList(),
+            Genres = book.Genres.Select(g => g.Name).ToList()
+        };
+
+        return View(model);
     }
 }

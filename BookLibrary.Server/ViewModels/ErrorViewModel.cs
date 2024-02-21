@@ -1,5 +1,3 @@
-using System;
-
 namespace BookLibrary.Server.ViewModels;
 
 public class ErrorViewModel
