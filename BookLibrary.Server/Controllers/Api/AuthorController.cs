@@ -18,6 +18,13 @@ public class AuthorController(LibraryDbContext libraryDbContext, DtoMapper mappe
     {
         IQueryable<Author> authorQuery = libraryDbContext.Authors;
         
+        if (!string.IsNullOrWhiteSpace(request.Query)) // concatenate first and last name and search for the query (case-insensitive)
+            authorQuery = authorQuery.Where(a => EF.Functions.Like($"{a.FirstName} {a.LastName}", $"%{request.Query}%"));
+        if (request.Offset > 0)
+            authorQuery = authorQuery.Skip(request.Offset);
+        
+        authorQuery = authorQuery.Take(request.Limit + 1);
+        
         var authorResponse = mapper.ToAuthorDto(await authorQuery.ToListAsync());
         return new GetAuthorsResponse
         {

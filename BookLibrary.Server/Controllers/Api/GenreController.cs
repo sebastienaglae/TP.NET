@@ -18,6 +18,13 @@ public class GenreController(LibraryDbContext libraryDbContext, DtoMapper mapper
     {
         IQueryable<Genre> genreQuery = libraryDbContext.Genres;
         
+        if (!string.IsNullOrWhiteSpace(request.Query))
+            genreQuery = genreQuery.Where(g => EF.Functions.Like(g.Name, $"%{request.Query}%")); // case-insensitive
+        if (request.Offset > 0)
+            genreQuery = genreQuery.Skip(request.Offset);
+        
+        genreQuery = genreQuery.Take(request.Limit + 1);
+        
         var genreResponse = mapper.ToGenreDto(await genreQuery.ToListAsync());
         return new GetGenresResponse
         {
