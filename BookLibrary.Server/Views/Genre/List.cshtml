@@ -1,4 +1,114 @@
-﻿@{
-    ViewData["Title"] = "Liste Genre";
+﻿@using BookLibrary.Server.Models
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using BookLibrary.Server.Extensions
+@model BookLibrary.Server.ViewModels.GenreResultsViewModel
+@{
+    ViewData["Title"] = "Genre List";
 }
-<p>TODO</p>
+
+<div class="card">
+    <div class="card-header">
+        <i class="icon-list"></i> Genres
+    </div>
+    <div class="card-body">
+        <div class="card-header-actions m-3">
+            <div class="card-header-action">
+                @if (User.IsInRole(AdminRole.AddGenres))
+                {
+                    <a asp-controller="Genre" asp-action="Create" class="btn btn-primary">
+                        <i class="fa fa-plus"></i> Add an genre
+                    </a>
+                }
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table table-responsive-sm table-striped">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Number of Books</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var genre in Model.Genres)
+                {
+                    <tr>
+                        <td>@genre.Name</td>
+                        <td>@genre.Books.Count books</td>
+                        <td>
+                            <a asp-controller="Genre" asp-action="Details" asp-route-id="@genre.Id" class="btn btn-primary my-1">
+                                <i class="fa fa-eye"></i>
+                                View Details
+                            </a>
+                            @if (User.IsInRole(AdminRole.EditGenres))
+                            {
+                                <a asp-controller="Genre" asp-action="Edit" asp-route-id="@genre.Id" class="btn btn-secondary my-1">
+                                    <i class="fa fa-edit"></i>
+                                    Edit
+                                </a>
+                            }
+                            @if (User.IsInRole(AdminRole.DeleteGenres))
+                            {
+                                <a asp-controller="Genre" asp-action="Delete" asp-route-id="@genre.Id" class="btn btn-danger my-1">
+                                    <i class="fa fa-trash"></i>
+                                    Delete
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            <div class="card-body">
+                <form id="paginationForm" method="get" class="form-inline my-2">
+                    <label for="itemsPerPage" class="mr-2">Items per page:</label>
+                    <select id="itemsPerPage" name="itemsPerPage" class="form-control">
+                        @foreach (var i in new[] { 2, 5, 10, 20, 50 })
+                        {
+                            <option value="@i" selected=@(Model.PaginationInfo.ItemsPerPage == i)>@i</option>
+                        }
+                    </select>
+                </form>
+                <nav class="d-flex justify-content-center">
+                    <ul class="pagination">
+                        <li class="page-item @(Model.PaginationInfo.Page == 1 ? "disabled" : "")">
+                            <a class="page-link" href="#" data-page="1">First</a>
+                        </li>
+                        <li class="page-item @(Model.PaginationInfo.Page == 1 ? "disabled" : "")">
+                            <a class="page-link" href="#" data-page="@(Model.PaginationInfo.Page - 1)">Previous</a>
+                        </li>
+                        @for (var i = 1; i <= Model.PaginationInfo.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PaginationInfo.Page ? "active" : "")">
+                                <a class="page-link" href="#" data-page="@i">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.PaginationInfo.Page == Model.PaginationInfo.TotalPages ? "disabled" : "")">
+                            <a class="page-link" href="#" data-page="@(Model.PaginationInfo.Page + 1)">Next</a>
+                        </li>
+                        <li class="page-item @(Model.PaginationInfo.Page == Model.PaginationInfo.TotalPages ? "disabled" : "")">
+                            <a class="page-link" href="#" data-page="@Model.PaginationInfo.TotalPages">Last</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#itemsPerPage').change(function () {
+                $('#paginationForm').submit();
+            });
+
+            $('.pagination .page-link').click(function (e) {
+                e.preventDefault();
+                const page = $(this).data('page');
+                $('#paginationForm').append('<input type="hidden" name="page" value="' + page + '">').submit();
+            });
+        });
+    </script>
+}

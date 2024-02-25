@@ -1,4 +1,22 @@
-﻿@{
-    ViewData["Title"] = "Edit book";
+﻿@model BookLibrary.Server.ViewModels.EditGenreViewModel
+@{
+    ViewData["Title"] = "Edit Genre";
 }
-<p>TODO</p>
+<div class="card">
+    <div class="card-header">
+        <i class="icon-plus"></i> Edit Genre
+    </div>
+    <div class="card-body">
+        <h2 class="text-center mt-3">Edit Genre - @Model.Name</h2>
+        <form method="post" asp-action="Edit">
+            <input type="hidden" asp-for="Id"/>
+            <div class="form-group">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control"/>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <input type="submit" value="Edit" class="btn btn-primary"/>
+            <a asp-controller="Genre" asp-action="List" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
