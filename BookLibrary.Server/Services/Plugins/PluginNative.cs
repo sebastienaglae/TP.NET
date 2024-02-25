@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using BookLibrary.ServerPluginKit;
@@ -9,12 +8,14 @@ namespace BookLibrary.Server.Services.Plugins;
 
 public class PluginNative : IPluginInterface
 {
+    private readonly string _name;
     private readonly IntPtr _nativeHandle;
     private GCHandle _gcHandle;
     private IPluginInterface.HttpMap _map;
     
-    public PluginNative(IntPtr nativeHandle)
+    public PluginNative(string filename, IntPtr nativeHandle)
     {
+        _name = filename;
         _nativeHandle = nativeHandle;
         _gcHandle = GCHandle.Alloc(this);
     }
@@ -25,18 +26,17 @@ public class PluginNative : IPluginInterface
         try
         {
             delegate* unmanaged<IntPtr, char *, char *, delegate* unmanaged<UnmanagedHttpRequest*, UnmanagedHttpResponse*, int>, void> httpMap = &HttpMap;
-            var createPluginMethod = NativeLibrary.GetExport(_nativeHandle, "CreatePlugin"); // IntPtr CreatePlugin(IntPtr, delegate* unmanaged<IntPtr, char*, char*, delegate* unmanaged<UnmanagedHttpRequest, UnmanagedHttpResponse>, void>)
-            if (createPluginMethod == IntPtr.Zero)
-                throw new InvalidOperationException("CreatePlugin method not found");
+            if (NativeLibrary.TryGetExport(_nativeHandle, "CreatePlugin", out var createPluginAddress) == false)
+                throw new InvalidOperationException($"Plugin {_name} does not have a CreatePlugin method");
 
             delegate* unmanaged<IntPtr, delegate* unmanaged<IntPtr, char*, char*, delegate* unmanaged<UnmanagedHttpRequest*, UnmanagedHttpResponse*, int>, void>, IntPtr>
                 createPlugin =
                     (delegate* unmanaged<IntPtr, delegate* unmanaged<IntPtr, char*, char*, delegate* unmanaged<UnmanagedHttpRequest*, UnmanagedHttpResponse*, int>,
-                        void>, IntPtr>)createPluginMethod;
+                        void>, IntPtr>) createPluginAddress;
             
             var result = createPlugin(GCHandle.ToIntPtr(_gcHandle), httpMap);
             if (result != IntPtr.Zero)
-                throw new InvalidOperationException("CreatePlugin failed. Result: " + result);
+                throw new InvalidOperationException($"Plugin {_name} failed to initialize with error code {result}");
         }
         finally
         {
@@ -48,11 +48,16 @@ public class PluginNative : IPluginInterface
     {
         try
         {
-            delegate* unmanaged<IntPtr, void> destroyPlugin = (delegate* unmanaged<IntPtr, void>) NativeLibrary.GetExport(_nativeHandle, "DestroyPlugin");
-            if (destroyPlugin != null)
+            if (NativeLibrary.TryGetExport(_nativeHandle, "DestroyPlugin", out var destroyPluginAddress))
+            {
+                delegate* unmanaged<IntPtr, void> destroyPlugin = (delegate* unmanaged<IntPtr, void>) destroyPluginAddress;
                 destroyPlugin(_nativeHandle);
+            }
         }
-        catch (EntryPointNotFoundException) { }
+        catch (EntryPointNotFoundException)
+        {
+            // ignore as the method is optional
+        }
 
         _gcHandle.Free();
     }
@@ -60,7 +65,7 @@ public class PluginNative : IPluginInterface
     [UnmanagedCallersOnly]
     private static unsafe void HttpMap(IntPtr handle, char *method, char *path, delegate* unmanaged<UnmanagedHttpRequest*, UnmanagedHttpResponse*, int> handler)
     {
-        // convert the handler to delegate to a managed delegate
+        // create a managed handler that can be called from the unmanaged world
         var managedHandler = new Func<PluginHttpRequest, PluginHttpResponse>(request =>
         {
             Span<byte> methodSpan = stackalloc byte[Encoding.UTF8.GetByteCount(request.Method)];
@@ -81,6 +86,9 @@ public class PluginNative : IPluginInterface
                 var success = handler(&unmanagedRequest, &unmanagedResponse);
                 try
                 {
+                    if (success != 0)
+                        throw new InvalidOperationException($"Plugin {handle} failed to handle request {request.Method} {request.Path}");
+                    
                     var managedResponse = new PluginHttpResponse
                     {
                         StatusCode = unmanagedResponse.StatusCode,
@@ -142,6 +150,7 @@ public class PluginNative : IPluginInterface
         public int HeaderCount;
     }
     
+    [StructLayout(LayoutKind.Sequential)]
     private struct UnmanagedHeader
     {
         public ByteArray Key;

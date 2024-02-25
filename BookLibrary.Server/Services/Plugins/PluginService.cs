@@ -1,8 +1,9 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.Loader;
 using BookLibrary.Server.Options;
 using BookLibrary.ServerPluginKit;
 using Microsoft.AspNetCore.Builder;
@@ -15,6 +16,9 @@ namespace BookLibrary.Server.Services.Plugins;
 
 public class PluginService : IDisposable
 {
+    private const int BufferSize = 4096;
+    private const string AssemblyFileExtension = ".dll";
+    
     private readonly PluginOptions _options;
     private readonly ILogger<PluginService> _logger;
     private readonly List<string> _pluginPaths = [];
@@ -31,21 +35,36 @@ public class PluginService : IDisposable
     {
         IPluginInterface.HttpMap httpMap = (method, path, handler) =>
         {
+            _logger.LogInformation("Mapping {Method} {Path} to plugin", method, path);
+            
+            // throw if the path is already mapped
+            if (builder.DataSources.Any(ds => ds.Endpoints.Any(ep => 
+                    ep is RouteEndpoint re && re.RoutePattern.RawText == path && 
+                    re.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods.Contains(method) == true)))
+                throw new InvalidOperationException($"Path {path} is already mapped");
+            
             builder.MapMethods(path, new[] { method }, async context =>
             {
                 var bodyArray = Array.Empty<byte>();
                 if (context.Request.Method is "POST" or "PUT")
                 {
-                    var buffer = new byte[4096];
-                    List<byte> bodyList = new List<byte>(4096);
-                    while (true)
+                    var buffer = ArrayPool<byte>.Shared.Rent(BufferSize);
+                    try
                     {
-                        var read = await context.Request.Body.ReadAsync(buffer);
-                        if (read == 0)
-                            break;
-                        bodyList.AddRange(buffer.AsSpan(0, read));
+                        var bodyList = new List<byte>(4096);
+                        while (true)
+                        {
+                            var read = await context.Request.Body.ReadAsync(buffer);
+                            if (read == 0)
+                                break;
+                            bodyList.AddRange(buffer.AsSpan(0, read));
+                        }
+                        bodyArray = bodyList.ToArray();
                     }
-                    bodyArray = bodyList.ToArray();
+                    finally
+                    {
+                        ArrayPool<byte>.Shared.Return(buffer);
+                    }
                 }
                 
                 var request = new PluginHttpRequest
@@ -82,7 +101,7 @@ public class PluginService : IDisposable
             return;
         
         _logger.LogInformation("Scanning for plugins...");
-        foreach (string file in Directory.EnumerateFiles(_options.Directory, "*.dll", SearchOption.AllDirectories))
+        foreach (string file in Directory.EnumerateFiles(_options.Directory, $"*{AssemblyFileExtension}", SearchOption.AllDirectories))
         {
             _pluginPaths.Add(file);
             _logger.LogInformation("Found plugin: {PluginPath}", file);
@@ -112,12 +131,12 @@ public class PluginService : IDisposable
         }
         catch (BadImageFormatException e)
         {
-            if (Path.GetExtension(pluginPath) != ".dll" || RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (Path.GetExtension(pluginPath) != AssemblyFileExtension || RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 var library = loadContext.LoadUnmanagedLibraryFromPath(Path.GetFullPath(pluginPath));
                 if (library != IntPtr.Zero)
                 {
-                    return (new PluginNative(library), loadContext);
+                    return (new PluginNative(Path.GetFileName(pluginPath), library), loadContext);
                 }
             }
             

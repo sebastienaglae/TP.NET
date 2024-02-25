@@ -16,6 +16,7 @@ builder.Services.AddControllersWithViews().AddNewtonsoftJson().AddRazorRuntimeCo
 builder.Services.AddSwaggerDocument();
 
 builder.Services.AddSingleton<DtoMapper>();
+builder.Services.AddSingleton<OpenLibraryService>();
 builder.Services.AddPlugins();
 
 builder.Services.AddMvc();
