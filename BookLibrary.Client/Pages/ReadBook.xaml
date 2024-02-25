@@ -24,8 +24,46 @@
         <ui:TextBlock Grid.Row="0" Text="Read Book" FontTypography="Subtitle" HorizontalAlignment="Center"
                       Foreground="White" />
         <Border
-            Margin="0"
-            Grid.Row="1"
+            Margin="0,5,0,10"
+            Grid.Row="1" Grid.ColumnSpan="1"
+            Padding="5,5,7,5"
+            Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1,1,1,0"
+            CornerRadius="8">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="Text to speech" Foreground="White" FontSize="10"
+                           HorizontalAlignment="Center" Margin="0,0,0,10" />
+
+                <StackPanel Margin="20,0,20,0" VerticalAlignment="Center"
+                            Orientation="Horizontal" HorizontalAlignment="Center">
+                    <ui:Button
+                        Content="Play"
+                        Appearance="Secondary"
+                        Margin="8,0,8,0"
+                        Command="{Binding PlayCommand}" />
+                    <ui:Button
+                        Content="Pause"
+                        Appearance="Secondary"
+                        Margin="8,0,8,0"
+                        Command="{Binding PauseCommand}" />
+                    <ui:Button
+                        Content="Resume"
+                        Appearance="Secondary"
+                        Margin="8,0,8,0"
+                        Command="{Binding ResumeCommand}" />
+                    <ui:Button
+                        Content="Stop"
+                        Appearance="Secondary"
+                        Margin="8,0,8,0"
+                        Command="{Binding StopCommand}" />
+                </StackPanel>
+                <ProgressBar Value="{Binding SpeakProgress}" Height="10" />
+            </StackPanel>
+        </Border>
+        <Border
+            Margin="0,5,0,10"
+            Grid.Row="2"
             Padding="0"
             Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
             BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
@@ -41,69 +79,64 @@
                 </Grid.ColumnDefinitions>
                 <Border
                     Grid.Column="0"
-                    Margin="0,8,8,8"
-                    Padding="0,16,16,16"
+                    Margin="8,8,0,8"
+                    Padding="16,16,16,16"
                     Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1,1,1,0"
-                    CornerRadius="0,0,1,1">
+                    CornerRadius="10,0,0,10">
                     <StackPanel>
-                        <ui:TextBlock Text="PAGE1" Foreground="White" TextWrapping="Wrap">
+                        <RichTextBox IsReadOnly="true">
+                            <FlowDocument>
+                                <Paragraph>
+                                    <Run Text="{Binding PageOneText, Mode=OneWay}" />
+                                </Paragraph>
+                            </FlowDocument>
                             <behaviours:Interaction.Triggers>
-                                <behaviours:EventTrigger EventName="MouseDown">
-                                    <behaviours:InvokeCommandAction Command="{Binding ClickPageOneCommand}"
-                                                                    PassEventArgsToCommand="True" />
+                                <behaviours:EventTrigger EventName="SelectionChanged">
+                                    <behaviours:InvokeCommandAction Command="{Binding PageOneSelectionChangedCommand}" PassEventArgsToCommand="True" />
                                 </behaviours:EventTrigger>
                             </behaviours:Interaction.Triggers>
-                        </ui:TextBlock>
+                        </RichTextBox>
                     </StackPanel>
                 </Border>
                 <Border
                     Grid.Column="1"
-                    Margin="8,8,0,8"
-                    Padding="16, 16, 0, 16"
+                    Margin="0,8,8,8"
+                    Padding="16,16,16,16"
                     Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1,1,1,0"
-                    CornerRadius="1,1,0,0">
+                    CornerRadius="0,10,10,0">
                     <StackPanel>
-                        <ui:TextBlock Text="PAGE1" Foreground="White" TextWrapping="Wrap" />
+                        <RichTextBox IsReadOnly="true">
+                            <FlowDocument>
+                                <Paragraph>
+                                    <Run Text="{Binding PageTwoText, Mode=OneWay}" />
+                                </Paragraph>
+                            </FlowDocument>
+                            <behaviours:Interaction.Triggers>
+                                <behaviours:EventTrigger EventName="SelectionChanged">
+                                    <behaviours:InvokeCommandAction Command="{Binding PageTwoSelectionChangedCommand}" PassEventArgsToCommand="True" />
+                                </behaviours:EventTrigger>
+                            </behaviours:Interaction.Triggers>
+                        </RichTextBox>
                     </StackPanel>
                 </Border>
             </Grid>
         </Border>
-        <StackPanel Grid.Row="2" Grid.ColumnSpan="1" Margin="20,0,20,0" HorizontalAlignment="Right">
-            <ui:Button
-                Content="Play"
-                Appearance="Secondary"
-                IsEnabled="{Binding CanPlay}"
-                Command="{Binding PlayCommand}" />
-            <ui:Button
-                Content="Pause"
-                Appearance="Secondary"
-                IsEnabled="{Binding CanPause}"
-                Command="{Binding PauseCommand}" />
-            <ui:Button
-                Content="Resume"
-                Appearance="Secondary"
-                IsEnabled="{Binding CanResume}"
-                Command="{Binding ResumeCommand}" />
-            <ui:Button
-                Content="Stop"
-                Appearance="Secondary"
-                IsEnabled="{Binding CanStop}"
-                Command="{Binding StopCommand}" />
-        </StackPanel>
-        <StackPanel Grid.Row="3" Grid.ColumnSpan="1" Margin="20,0,20,0" HorizontalAlignment="Right">
-            <TextBlock Text="{Binding CurrentPage}" Foreground="White" FontSize="16" FontWeight="Bold" />
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="1" Margin="20,0,20,0" HorizontalAlignment="Right"
+                    Orientation="Horizontal">
             <ui:Button
                 Content="Previous Page"
                 IsEnabled="{Binding HasPreviousPage}"
-                Appearance="Secondary"
+                Appearance="Primary"
                 Command="{Binding PreviousPageCommand}" />
+            <TextBlock Text="{Binding CurrentPage}" Foreground="White" FontSize="16" FontWeight="Bold"
+                       Margin="20,0,20,0" HorizontalAlignment="Center" VerticalAlignment="Center" />
             <ui:Button
                 Content="Next Page"
-                Appearance="Secondary"
+                Appearance="Primary"
                 IsEnabled="{Binding HasNextPage}"
                 Command="{Binding NextPageCommand}" />
         </StackPanel>
