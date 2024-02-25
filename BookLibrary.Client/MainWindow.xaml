@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     ExtendsContentIntoTitleBar="True"
-    Title="MainWindow" Height="450" Width="800"
+    Title="MainWindow" Height="600" Width="1000"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     DataContext="{DynamicResource Navigator}"
     xmlns:model="clr-namespace:BookLibrary.Client.ViewModel"
@@ -37,19 +37,8 @@
                     Width="60"
                     Height="60"
                     Margin="0,0,0,8"
-                    Background="{DynamicResource StripedBackgroundBrush}"
-                    CornerRadius="4">
-                    <TextBlock
-                        Margin="0"
-                        VerticalAlignment="Center"
-                        FontWeight="Medium"
-                        Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
-                        Text="Pane Header"
-                        TextAlignment="Center"
-                        TextWrapping="WrapWithOverflow" />
-                </Border>
+                    CornerRadius="4" />
             </ui:NavigationView.PaneHeader>
-
         </ui:NavigationView>
     </Grid>
 </ui:FluentWindow>

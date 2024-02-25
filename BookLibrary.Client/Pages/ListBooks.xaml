@@ -14,9 +14,6 @@
     <Page.DataContext>
         <viewModel:ListBooks />
     </Page.DataContext>
-    <Page.Resources>
-        <viewModel:Navigator x:Key="Navigator" />
-    </Page.Resources>
     <behaviours:Interaction.Triggers>
         <behaviours:EventTrigger EventName="Loaded">
             <behaviours:InvokeCommandAction Command="{Binding PageLoadedCommand}" />

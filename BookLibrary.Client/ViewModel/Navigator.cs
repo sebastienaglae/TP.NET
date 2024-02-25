@@ -9,18 +9,17 @@ namespace BookLibrary.Client.ViewModel;
 
 internal class Navigator : INotifyPropertyChanged
 {
-    public event PropertyChangedEventHandler PropertyChanged;
     public ICommand GoToBookDetailsCommand => new RelayCommand<string>(GoToBook);
+    public event PropertyChangedEventHandler PropertyChanged;
 
     public void GoToHome()
     {
         Ioc.Default.GetRequiredService<INavigationService>().Navigate<Pages.ListBooks>();
     }
-    
+
     public void GoToBook(string id)
     {
         MessageBox.Show($"Navigating to book {id}");
         Ioc.Default.GetRequiredService<INavigationService>().Navigate<BookDetails>(4);
     }
-    
 }
