@@ -1,0 +1,94 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="container text-center">
+    <h1 class="display-4">TP .NET</h1>
+
+    <section class="my-5">
+        <h2 class="h4">But</h2>
+        <p>Construire un web service avec son client Windows pour gérer et consulter une bibliothèque de livres.</p>
+    </section>
+
+    <section class="my-5">
+        <h2 class="h4">A rendre</h2>
+        <ul class="list-group">
+            <li class="list-group-item">Un web service de stockage et de gestion de livres en ligne.</li>
+            <li class="list-group-item">Un logiciel sous Windows pour consulter et lire les livres.</li>
+        </ul>
+    </section>
+
+    <section class="my-5">
+        <h2 class="h4">Contrainte</h2>
+        <p>Langages autorisés : C#, HTML, Javascript, CSS, TypeScript</p>
+        <p>Serveur web : ASP.Net Core</p>
+        <p>Logiciel Windows : WPF</p>
+    </section>
+
+    <section class="my-5">
+        <h2 class="h4">Projet de départ</h2>
+        <p>Votre solution devra être basée sur le projet <strong>Library.sln</strong>.</p>
+        <ul class="list-group">
+            <li class="list-group-item">La partie server est dans le projet <strong>ASP.Server</strong>.</li>
+            <li class="list-group-item">La partie client est dans le projet <strong>WPF.Reader</strong>.</li>
+            <li class="list-group-item">La connexion entre votre client et votre serveur est dans le projet <strong>WPF.Reader.OpenApi</strong>.</li>
+        </ul>
+    </section>
+
+    <section class="my-5">
+        <h2 class="h4">Aide</h2>
+        <div>
+            <p>Pour éviter les boucles infinies entre genre et livre lors de la conversion en JSON, utiliser un ou plusieurs DTO.</p>
+            <p>Pour renvoyer un objet différent de celui contenu dans votre base utilisé un DTO.</p>
+            <p>Pour que Entity Framework retourne les genres avec les livres, utilisez la méthode <code>Include</code>.</p>
+            <p>En WPF, certains événements ne supportent pas les commandes. Utilisez le package <code>Microsoft.Xaml.Behaviors.Wpf</code> pour y remédier.</p>
+        </div>
+    </section>
+
+    <section class="my-5">
+        <h2 class="h4">Fonctionnalité attendue</h2>
+        <p>Livrable :</p>
+        <ul class="list-group">
+            <li class="list-group-item">Une interface d'administration</li>
+            <li class="list-group-item">Une API REST</li>
+            <li class="list-group-item">Un client lourd de lecture</li>
+        </ul>
+    </section>
+
+    <section class="my-5">
+        <h2 class="h4">Librairie</h2>
+        <p>Stocker une bibliothèque de livres consistant en :</p>
+        <ul class="list-group">
+            <li class="list-group-item">Une liste de livres accessibles à la lecture.</li>
+            <li class="list-group-item">Une liste de genres permettant de caractériser les livres.</li>
+        </ul>
+    </section>
+
+    <section class="my-5">
+        <h2 class="h4">Administration</h2>
+        <p>Un utilisateur doit pouvoir :</p>
+        <ul class="list-group">
+            <li class="list-group-item">Ajouter des livres dans la bibliothèque.</li>
+            <li class="list-group-item">Supprimer des livres de la bibliothèque.</li>
+            <li class="list-group-item">Consulter la liste de tous les livres.</li>
+            <li class="list-group-item">Consulter la liste de tous les genres.</li>
+            <li class="list-group-item">Faire une interface pour ajouter de nouveaux genres.</li>
+            <li class="list-group-item">Modifier un livre existant.</li>
+        </ul>
+    </section>
+
+    <section class="my-5">
+        <h2 class="h4">Api</h2>
+        <p>Une API REST doit être mise à disposition pour permettre à des clients externes de consulter la librairie.</p>
+    </section>
+
+    <section class="my-5">
+        <h2 class="h4">Application Windows</h2>
+        <p>L’application doit permettre de :</p>
+        <ul class="list-group">
+            <li class="list-group-item">Lister les N premiers livres.</li>
+            <li class="list-group-item">Afficher les détails d’un livre.</li>
+            <li class="list-group-item">Lire un livre.</li>
+        </ul>
+    </section>
+</div>

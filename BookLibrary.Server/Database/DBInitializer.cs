@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using BookLibrary.Server.Models;
+using BookLibrary.Server.Services;
 
 namespace BookLibrary.Server.Database;
 
@@ -63,7 +64,12 @@ public class DbInitializer
         bookDbContext.AddRange(books);
 
         var adminUser = new AdminUser
-            { UserName = "admin", PasswordHash = BitConverter.ToString(SHA256.HashData("password"u8)) };
+        {
+            UserName = "Admin", 
+            PasswordHash = AuthenticationService.HashPassword("mbds"), 
+            Roles = AdminRole.All,
+            AvatarUrl = "//m.gettywallpapers.com/wp-content/uploads/2023/09/Anya-Dp.jpg"
+        };
         bookDbContext.Add(adminUser);
 
         bookDbContext.SaveChanges();

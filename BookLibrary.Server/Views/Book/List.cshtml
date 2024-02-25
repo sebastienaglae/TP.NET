@@ -1,7 +1,9 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Books";
 }
 
+@using BookLibrary.Server.Models
+@using BookLibrary.Server.Extensions
 @model BookLibrary.Server.ViewModels.BookResultsViewModel
 
 <div class="card">
@@ -12,9 +14,12 @@
         <h2 class="text-center mt-3">Welcome to Book Library</h2>
         <div class="card-header-actions m-3">
             <div class="card-header-action">
-                <a href="@Url.Action("Create", "Book")" class="btn btn-primary">
-                    <i class="fa fa-plus"></i> Add a book
-                </a>
+                @if (User.IsInRole(AdminRole.AddBooks))
+                {
+                    <a href="@Url.Action("Create", "Book")" class="btn btn-primary">
+                        <i class="fa fa-plus"></i> Add a book
+                    </a>
+                }
             </div>
         </div>
         <div class="card-body">
@@ -35,18 +40,7 @@
                         <td>@string.Join(", ", book.Authors.Select(a => a.FirstName + " " + a.LastName))</td>
                         <td>@string.Join(", ", book.Genres.Select(g => g.Name))</td>
                         <td>
-                            <a href="@Url.Action("Details", "Book", new { id = book.Id })" class="btn btn-primary my-1">
-                                <i class="fa fa-eye"></i>
-                                View Details
-                            </a>
-                            <a href="@Url.Action("Edit", "Book", new { id = book.Id })" class="btn btn-secondary my-1">
-                                <i class="fa fa-edit"></i>
-                                Edit
-                            </a>
-                            <a href="@Url.Action("Delete", "Book", new { id = book.Id })" class="btn btn-danger my-1">
-                                <i class="fa fa-trash"></i>
-                                Delete
-                            </a>
+                            @await Html.PartialAsync("_ManageActions", book.Id)
                         </td>
                     </tr>
                 }
