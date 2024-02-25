@@ -9,6 +9,8 @@ public class DetailsBookViewModel
     public string Description { get; set; }
 
     public decimal Price { get; set; }
+    
+    public List<string> Pages { get; set; }
 
     public ICollection<string> Authors { get; set; }
 

@@ -7,7 +7,7 @@
             <li class="nav-item">
                 <a class="nav-link" asp-controller="Book" asp-action="List">
                     <i class="nav-icon icon-list"></i> List of books
-                    <span class="badge badge-primary">NEW</span>
+                    @*<span class="badge badge-primary">NEW</span>*@
                 </a>
             </li>
             @if (User.IsInRole(AdminRole.AddBooks))

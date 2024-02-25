@@ -1,7 +1,7 @@
 ﻿function setupAutocomplete(inputId, apiUrl, dropdownId, selectedListId, displayField, hiddenInputName, initialItems) {
     $('#' + inputId).on('input', function () {
         const query = $(this).val();
-        if (query.length > 1) {
+        if (query.length >= 1) {
             $('#' + dropdownId).show();
             $.ajax({
                 url: apiUrl,
@@ -56,3 +56,37 @@ $(document).ready(function () {
         return genre.name;
     }, 'GenreIds', genres);
 });
+
+$(document).ready(function () {
+    const addPagesButton = document.getElementById('addPage');
+    // add <input type="text" name="Pages" class="form-control" /> to the form (before the button)
+    addPagesButton.addEventListener('click', function () {
+        const pageDiv = document.createElement('div');
+        pageDiv.classList.add('page-content');
+        const input = document.createElement('textarea');
+        input.name = 'Pages';
+        input.placeholder = 'Content of the page';
+        input.rows = 10;
+        input.classList.add('form-control');
+        input.classList.add('mb-3');
+        pageDiv.appendChild(input);
+
+        // add delete button (float right)
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.classList.add('btn');
+        deleteButton.classList.add('btn-danger');
+        deleteButton.classList.add('page-delete-btn');
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', function () {
+            deletePage(deleteButton);
+        });
+        pageDiv.appendChild(deleteButton);
+
+        addPagesButton.before(pageDiv);
+    });
+});
+
+function deletePage(btn) {
+    btn.parentElement.remove();
+}

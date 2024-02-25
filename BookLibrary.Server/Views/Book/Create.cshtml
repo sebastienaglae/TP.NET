@@ -38,10 +38,25 @@
             </div>
 
             <div class="form-group">
-                <label asp-for="Description" for="Content">Content</label>
-                <textarea asp-for="Description" id="Content" name="Content" class="form-control"></textarea>
+                <label asp-for="Description" for="Description">Description</label>
+                <textarea asp-for="Description" id="Description" name="Description" class="form-control" rows="5"></textarea>
                 <small class="form-text text-muted">You can resize the textarea by dragging the bottom right corner.</small>
                 <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Pages" for="Pages">Pages</label>
+                @foreach (var p in Model.Pages)
+                {
+                    <div class="page-content">
+                        <textarea name="Pages" class="form-control mb-3" rows="10">@p</textarea>
+                        <button type="button" class="btn btn-danger page-delete-btn" onclick="deletePage(this)">Delete</button>
+                    </div>
+                }
+                <!-- add button to add pages -->
+                <div>
+                    <button type="button" class="btn btn-primary mt-1" id="addPage">Add page</button>
+                </div>
+                <span asp-validation-for="Pages" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Price" for="Price">Price</label>

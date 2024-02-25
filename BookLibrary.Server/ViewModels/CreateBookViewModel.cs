@@ -8,8 +8,11 @@ public class CreateBookViewModel
     [Required(ErrorMessage = "The Name field is required.")]
     public string Name { get; init; }
 
-    [Required(ErrorMessage = "The Content field is required.")]
+    [Required(ErrorMessage = "The Description field is required.")]
     public string Description { get; init; }
+    
+    [Required(ErrorMessage = "The Pages field is required.")]
+    public List<string> Pages { get; init; } = new List<string>();
 
     [Required(ErrorMessage = "The Price field is required.")]
     public decimal Price { get; init; }

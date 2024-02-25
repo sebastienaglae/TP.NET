@@ -8,6 +8,7 @@ using BookLibrary.Server.Services;
 using BookLibrary.Server.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookLibrary.Server.Controllers;
@@ -48,6 +49,7 @@ public class BookController : Controller
         return View(model);
     }
     
+    [EnableRateLimiting("fixed-window")]
     public async Task<IActionResult> Search([FromQuery] BookSearchResultsViewModel filter)
     {
         var totalPages = await GetTotalPageAsync(filter.ItemsPerPage, ApplyFilter(_context.Books, filter));
@@ -70,13 +72,13 @@ public class BookController : Controller
         static IQueryable<Book> ApplyFilter(IQueryable<Book> books, BookSearchResultsViewModel filter)
         {
             if (!string.IsNullOrWhiteSpace(filter.Title))
-                books = books.Where(b => b.Name.Contains(filter.Title));
+                books = books.Where(b => EF.Functions.Like(b.Name, $"%{filter.Title}%"));
 
             if (!string.IsNullOrWhiteSpace(filter.Author))
-                books = books.Where(b => b.Authors.Any(a => a.FirstName.Contains(filter.Author) || a.LastName.Contains(filter.Author)));
+                books = books.Where(b => b.Authors.Any(a => EF.Functions.Like(a.FirstName, $"%{filter.Author}%") || EF.Functions.Like(a.LastName, $"%{filter.Author}%")));
 
             if (!string.IsNullOrWhiteSpace(filter.Genre))
-                books = books.Where(b => b.Genres.Any(g => g.Name.Contains(filter.Genre)));
+                books = books.Where(b => b.Genres.Any(g => EF.Functions.Like(g.Name, $"%{filter.Genre}%")));
 
             return books;
         }
@@ -115,6 +117,7 @@ public class BookController : Controller
         {
             Name = model.Name,
             Description = model.Description,
+            Pages = model.Pages,
             Price = model.Price,
             Genres = await _context.Genres.Where(g => model.GenreIds.Contains(g.Id)).ToListAsync(),
             Authors = await _context.Authors.Where(a => model.AuthorIds.Contains(a.Id)).ToListAsync()
@@ -152,6 +155,7 @@ public class BookController : Controller
             Id = book.Id,
             Name = book.Name,
             Description = book.Description,
+            Pages = book.Pages,
             Price = book.Price,
             GenreIds = book.Genres.Select(g => g.Id).ToList(),
             AuthorIds = book.Authors.Select(a => a.Id).ToList()
@@ -192,6 +196,7 @@ public class BookController : Controller
         book.Name = model.Name;
         book.Description = model.Description;
         book.Price = model.Price;
+        book.Pages = model.Pages;
         book.Genres = _context.Genres.Where(g => model.GenreIds.Contains(g.Id)).ToList();
         book.Authors = _context.Authors.Where(a => model.AuthorIds.Contains(a.Id)).ToList();
 
@@ -231,6 +236,7 @@ public class BookController : Controller
             Id = book.Id,
             Name = book.Name,
             Description = book.Description,
+            Pages = book.Pages,
             Price = book.Price,
             Authors = book.Authors.Select(a => a.FirstName + " " + a.LastName).ToList(),
             Genres = book.Genres.Select(g => g.Name).ToList()

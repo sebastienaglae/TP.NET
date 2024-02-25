@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using BookLibrary.Server;
 using BookLibrary.Server.Database;
 using BookLibrary.Server.Dtos;
@@ -5,7 +6,9 @@ using BookLibrary.Server.Services;
 using BookLibrary.Server.Services.Plugins;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,6 +26,18 @@ builder.Services.AddScoped<AuthenticationService>();
 
 builder.Services.AddPlugins();
 builder.Services.AddMemoryCache();
+
+builder.Services.AddRateLimiter(rateLimiterOptions =>
+{
+    rateLimiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    rateLimiterOptions.AddFixedWindowLimiter("fixed-window", options =>
+    {
+        options.PermitLimit = 10;
+        options.Window = System.TimeSpan.FromSeconds(30);
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        options.QueueLimit = 5;
+    });
+});
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -51,6 +66,7 @@ else
     app.UseHsts();
 }
 app.UseHttpsRedirection();
+app.UseRateLimiter();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
