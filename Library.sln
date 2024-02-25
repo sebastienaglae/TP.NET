@@ -17,9 +17,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookLibrary.Client.OpenApi"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MAUI.Reader", "MAUI.Reader\MAUI.Reader.csproj", "{94E3381D-7D11-41E4-982A-18DAAD7260A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookLibrary.ServerPluginKit", "BookLibrary.ServerPluginKit\BookLibrary.ServerPluginKit.csproj", "{0943427E-E1D2-49F2-814C-AC53DC57AB79}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookLibrary.ServerPluginKit", "BookLibrary.ServerPluginKit\BookLibrary.ServerPluginKit.csproj", "{0943427E-E1D2-49F2-814C-AC53DC57AB79}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestHttpPlugin", "TestHttpPlugin\TestHttpPlugin.csproj", "{8455DCEA-08B8-4D33-B4B6-9923D733DA4A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestHttpPlugin", "TestHttpPlugin\TestHttpPlugin.csproj", "{8455DCEA-08B8-4D33-B4B6-9923D733DA4A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookLibrary.Client", "BookLibrary.Client\BookLibrary.Client.csproj", "{AADDD645-F84B-457C-A84E-20F766EF0340}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,18 +57,6 @@ Global
 		{14217C78-F219-4C77-BFFB-AA016A18D493}.Release|x64.Build.0 = Release|Any CPU
 		{14217C78-F219-4C77-BFFB-AA016A18D493}.Release|x86.ActiveCfg = Release|Any CPU
 		{14217C78-F219-4C77-BFFB-AA016A18D493}.Release|x86.Build.0 = Release|Any CPU
-		{2CF83A42-3805-4ED1-9EDD-A080E71C2F01}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{2CF83A42-3805-4ED1-9EDD-A080E71C2F01}.Debug|Any CPU.Build.0 = Debug|x64
-		{2CF83A42-3805-4ED1-9EDD-A080E71C2F01}.Debug|x64.ActiveCfg = Debug|x64
-		{2CF83A42-3805-4ED1-9EDD-A080E71C2F01}.Debug|x64.Build.0 = Debug|x64
-		{2CF83A42-3805-4ED1-9EDD-A080E71C2F01}.Debug|x86.ActiveCfg = Debug|Win32
-		{2CF83A42-3805-4ED1-9EDD-A080E71C2F01}.Debug|x86.Build.0 = Debug|Win32
-		{2CF83A42-3805-4ED1-9EDD-A080E71C2F01}.Release|Any CPU.ActiveCfg = Release|x64
-		{2CF83A42-3805-4ED1-9EDD-A080E71C2F01}.Release|Any CPU.Build.0 = Release|x64
-		{2CF83A42-3805-4ED1-9EDD-A080E71C2F01}.Release|x64.ActiveCfg = Release|x64
-		{2CF83A42-3805-4ED1-9EDD-A080E71C2F01}.Release|x64.Build.0 = Release|x64
-		{2CF83A42-3805-4ED1-9EDD-A080E71C2F01}.Release|x86.ActiveCfg = Release|Win32
-		{2CF83A42-3805-4ED1-9EDD-A080E71C2F01}.Release|x86.Build.0 = Release|Win32
 		{94E3381D-7D11-41E4-982A-18DAAD7260A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{94E3381D-7D11-41E4-982A-18DAAD7260A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94E3381D-7D11-41E4-982A-18DAAD7260A1}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
@@ -109,6 +99,18 @@ Global
 		{8455DCEA-08B8-4D33-B4B6-9923D733DA4A}.Release|x64.Build.0 = Release|Any CPU
 		{8455DCEA-08B8-4D33-B4B6-9923D733DA4A}.Release|x86.ActiveCfg = Release|Any CPU
 		{8455DCEA-08B8-4D33-B4B6-9923D733DA4A}.Release|x86.Build.0 = Release|Any CPU
+		{AADDD645-F84B-457C-A84E-20F766EF0340}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AADDD645-F84B-457C-A84E-20F766EF0340}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AADDD645-F84B-457C-A84E-20F766EF0340}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AADDD645-F84B-457C-A84E-20F766EF0340}.Debug|x64.Build.0 = Debug|Any CPU
+		{AADDD645-F84B-457C-A84E-20F766EF0340}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AADDD645-F84B-457C-A84E-20F766EF0340}.Debug|x86.Build.0 = Debug|Any CPU
+		{AADDD645-F84B-457C-A84E-20F766EF0340}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AADDD645-F84B-457C-A84E-20F766EF0340}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AADDD645-F84B-457C-A84E-20F766EF0340}.Release|x64.ActiveCfg = Release|Any CPU
+		{AADDD645-F84B-457C-A84E-20F766EF0340}.Release|x64.Build.0 = Release|Any CPU
+		{AADDD645-F84B-457C-A84E-20F766EF0340}.Release|x86.ActiveCfg = Release|Any CPU
+		{AADDD645-F84B-457C-A84E-20F766EF0340}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

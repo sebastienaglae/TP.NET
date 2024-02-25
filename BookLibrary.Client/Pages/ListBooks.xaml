@@ -1,0 +1,143 @@
+﻿<Page xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      x:Class="BookLibrary.Client.Pages.ListBooks"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d"
+      xmlns:models="clr-namespace:BookLibrary.Client.Models"
+      xmlns:controls="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:viewModel="clr-namespace:BookLibrary.Client.ViewModel"
+      d:DesignHeight="450" d:DesignWidth="800"
+      d:DataContext="{d:DesignInstance Type=viewModel:ListBooks, d:IsDesignTimeCreatable=True}"
+      Title="ListBook">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MaxWidth="400" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border
+            Margin="8,8,8,8"
+            Padding="16"
+            Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1,1,1,0"
+            CornerRadius="8">
+            <StackPanel Margin="8,8,8,8" MaxWidth="350">
+                <StackPanel HorizontalAlignment="Center" Margin="10">
+                    <ui:TextBlock FontTypography="Subtitle" Text="Research Books" Foreground="White" />
+                </StackPanel>
+                <StackPanel>
+                    <Label>Choose Authors</Label>
+                    <ui:AutoSuggestBox
+                        PlaceholderText="Type an Author ..."
+                        TextChanged="Author_AutoSuggestBox_TextChanged"
+                        SuggestionChosen="Author_AutoSuggestBox_SuggestionChosen" />
+                    <StackPanel Margin="8,8,8,8">
+                        <Label>Selected Authors</Label>
+                        <ListView ItemsSource="{Binding FilteredAuthors}" DataContext="{Binding}"
+                                  IsHitTestVisible="true" IsManipulationEnabled="False">
+                            <controls:ListView.View>
+                                <controls:GridView />
+                            </controls:ListView.View>
+                            <ListView.ItemTemplate>
+                                <DataTemplate DataType="{x:Type models:Author}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Margin="8,4" Text="{Binding}" />
+                                        <Button Content="Remove" HorizontalAlignment="Right"
+                                                Command="{Binding DataContext.RemoveAuthorCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                CommandParameter="{Binding}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </StackPanel>
+
+                <Border
+                    Margin="0,20"
+                    BorderThickness="1"
+                    Visibility="Visible" />
+
+                <StackPanel>
+                    <Label>Choose Genres</Label>
+                    <ui:AutoSuggestBox
+                        PlaceholderText="Type a Genre ..."
+                        TextChanged=" Genre_AutoSuggestBox_TextChanged"
+                        SuggestionChosen="Genre_AutoSuggestBox_SuggestionChosen" />
+                    <StackPanel Margin="8,8,8,8">
+                        <Label>Selected Genres</Label>
+                        <ListView ItemsSource="{Binding FilteredGenres}" IsHitTestVisible="true"
+                                  IsManipulationEnabled="False">
+                            <ListView.ItemTemplate>
+                                <DataTemplate DataType="{x:Type models:Genre}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Margin="8,4" Text="{Binding }" />
+                                        <Button Content="Remove" HorizontalAlignment="Right"
+                                                Command="{Binding DataContext.RemoveGenreCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                CommandParameter="{Binding}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </StackPanel>
+                <Border
+                    Margin="0,20"
+                    BorderThickness="1"
+                    Visibility="Visible" />
+                <ui:Button Content="Search" Command="{Binding SearchCommand}" Appearance="Primary" />
+            </StackPanel>
+        </Border>
+        <StackPanel Grid.Column="1" Margin="16,16,16,16">
+            <ItemsControl ItemsSource="{Binding Books}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <controls:WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Width="250" Height="400" Background="Beige" Margin="10" Padding="0"
+                                Command="{Binding DataContext.ShowBookDetailsCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                CommandParameter="{Binding}">
+
+                            <Border BorderBrush="#9e3f41" BorderThickness="2" CornerRadius="5" Padding="10" Margin="10">
+
+                                <Grid Width="200" Height="350">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <ui:TextBlock Grid.Row="0" FontTypography="Subtitle" Foreground="Black"
+                                                  Text="{Binding Title}"
+                                                  FontWeight="Bold" TextWrapping="Wrap" />
+                                    <ItemsControl Grid.Row="1" ItemsSource="{Binding Authors}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Top" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <ui:TextBlock Grid.Row="0" FontTypography="BodyStrong"
+                                                              Foreground="Black"
+                                                              TextWrapping="Wrap"
+                                                              Text="{Binding}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <ui:TextBlock Grid.Row="2" Foreground="Black"
+                                                  Text="{Binding Price}" HorizontalAlignment="Right"
+                                                  TextWrapping="Wrap"
+                                                  VerticalAlignment="Bottom" />
+                                </Grid>
+                            </Border>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </Grid>
+</Page>
