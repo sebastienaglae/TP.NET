@@ -1,0 +1,36 @@
+@model BookLibrary.Server.ViewModels.BookResultsViewModel
+@{
+    Layout = null;
+}
+
+<table class="table table-responsive-sm table-striped">
+    <thead>
+    <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Genre</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <form>
+            <td><input type="text" name="search" class="form-control" placeholder="Search by title" id="titleSearch"/></td>
+            <td><input type="text" name="search" class="form-control" placeholder="Search by author" id="authorSearch" /></td>
+            <td><input type="text" name="search" class="form-control" placeholder="Search by genre" id="genreSearch" /></td>
+            <td></td>
+        </form>
+    </tr>
+    @foreach (var book in Model.Books)
+    {
+        <tr>
+            <td>@book.Name</td>
+            <td>@string.Join(", ", book.Authors.Select(a => a.FirstName + " " + a.LastName))</td>
+            <td>@string.Join(", ", book.Genres.Select(g => g.Name))</td>
+            <td>
+                @await Html.PartialAsync("_ManageActions", book.Id)
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

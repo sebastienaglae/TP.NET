@@ -23,29 +23,9 @@
             </div>
         </div>
         <div class="card-body">
-            <table class="table table-responsive-sm table-striped">
-                <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Author</th>
-                    <th>Genre</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var book in Model.Books)
-                {
-                    <tr>
-                        <td>@book.Name</td>
-                        <td>@string.Join(", ", book.Authors.Select(a => a.FirstName + " " + a.LastName))</td>
-                        <td>@string.Join(", ", book.Genres.Select(g => g.Name))</td>
-                        <td>
-                            @await Html.PartialAsync("_ManageActions", book.Id)
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
+            <div id="listTable">
+                @await Html.PartialAsync("_ListTable", Model)
+            </div>
             <div class="card-body">
                 <form id="paginationForm" method="get" class="form-inline my-2">
                     <label for="itemsPerPage" class="mr-2">Items per page:</label>
@@ -59,15 +39,15 @@
                 <nav class="d-flex justify-content-center">
                     <ul class="pagination">
                         <li class="page-item @(Model.PaginationInfo.Page == 1 ? "disabled" : "")">
-                            <a class="page-link" href="#" data-page="1">First</a>
+                            <a class="page-link" href="#" data-page="1" id="firstButton">First</a>
                         </li>
                         <li class="page-item @(Model.PaginationInfo.Page == 1 ? "disabled" : "")">
-                            <a class="page-link" href="#" data-page="@(Model.PaginationInfo.Page - 1)">Previous</a>
+                            <a class="page-link" href="#" data-page="@(Model.PaginationInfo.Page - 1)" id="previousButton">Previous</a>
                         </li>
                         @for (var i = 1; i <= Model.PaginationInfo.TotalPages; i++)
                         {
                             <li class="page-item @(i == Model.PaginationInfo.Page ? "active" : "")">
-                                <a class="page-link" href="#" data-page="@i">@i</a>
+                                <a class="page-link" href="#" data-page="@i" id="pageNumber">@i</a>
                             </li>
                         }
                         <li class="page-item @(Model.PaginationInfo.Page == Model.PaginationInfo.TotalPages ? "disabled" : "")">
@@ -96,5 +76,64 @@
                 $('#paginationForm').append('<input type="hidden" name="page" value="' + page + '">').submit();
             });
         });
+    </script>
+    <script>
+        function initForm() {
+            const titleSearch = document.getElementById('titleSearch');
+            const authorSearch = document.getElementById('authorSearch');
+            const genreSearch = document.getElementById('genreSearch');
+            const itemsPerPage = document.getElementById('itemsPerPage');
+            const listTable = document.getElementById('listTable');
+            
+            let currentTimeout = null;
+            let hasCanceled = false;
+            const onchange = () => {
+                if (currentTimeout) {
+                    clearTimeout(currentTimeout);
+                }
+                
+                currentTimeout = setTimeout(search, 500);
+            };
+            
+            const search = () => {
+                const title = titleSearch.value;
+                const author = authorSearch.value;
+                const genre = genreSearch.value;
+                
+                hasCanceled = false;
+                fetch(`/Book/Search?Title=${title}&Author=${author}&Genre=${genre}&ItemsPerPage=${itemsPerPage.value}`)
+                    .then(response => response.text())
+                    .then(data => {
+                        if (hasCanceled) {
+                            return;
+                        }
+                        listTable.innerHTML = data;
+                        
+                        // change page number to 1
+                        document.getElementById('pageNumber').innerText = 1;
+                        // set data-page attribute to 1
+                        document.getElementById('pageNumber').setAttribute('data-page', 1);
+                        
+                        // disable first and previous buttons
+                        document.getElementById('firstButton').parentElement.classList.add('disabled');
+                        document.getElementById('previousButton').parentElement.classList.add('disabled');
+                        
+                        // set input to filter by title, author, and genre
+                        document.getElementById('titleSearch').value = title;
+                        document.getElementById('authorSearch').value = author;
+                        document.getElementById('genreSearch').value = genre;
+                        
+                        initForm();
+                    });
+            };
+            
+            titleSearch.addEventListener('input', onchange);
+            authorSearch.addEventListener('input', onchange);
+            genreSearch.addEventListener('input', onchange);
+            itemsPerPage.addEventListener('change', onchange);
+        }
+        
+        initForm();
+        
     </script>
 }

@@ -29,9 +29,9 @@ public class StatisticsController(ILogger<StatisticsController> logger, LibraryD
             
             var minMedMaxBookTasks = new []
             {
-                dbContext.Books.MinAsync(b => b.Content.Length),
-                dbContext.Books.OrderBy(b => b.Content.Length).Select(b => b.Content.Length).Skip(booksCount / 2).FirstOrDefaultAsync(),
-                dbContext.Books.MaxAsync(b => b.Content.Length)
+                dbContext.Books.MinAsync(b => b.Pages.Sum(p => p.Length)),
+                dbContext.Books.OrderBy(b => b.Pages.Sum(p => p.Length)).Select(b => b.Pages.Sum(p => p.Length)).Skip(booksCount / 2).FirstOrDefaultAsync(),
+                dbContext.Books.MaxAsync(b => b.Pages.Sum(p => p.Length))
             };
             var minMedMaxBookPriceTasks = new []
             {

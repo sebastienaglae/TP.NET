@@ -31,7 +31,7 @@ public class OpenLibraryService
             var bookModel = new Book
             {
                 Name = book.Data.Title,
-                Content = book.Data.Description,
+                Description = book.Data.Description,
                 Price = 0.0m,
                 Authors = new List<Author>(),
                 Genres = new List<Genre>()

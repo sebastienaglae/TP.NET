@@ -11,7 +11,8 @@ public partial class DtoMapper
     [MapProperty(nameof(Book.Id), nameof(BookDto.Id))]
     [MapProperty(nameof(Book.Name), nameof(BookDto.Title))]
     [MapProperty(nameof(Book.Authors), nameof(BookDto.Authors))]
-    [MapProperty(nameof(Book.Content), nameof(BookDto.Description))]
+    [MapProperty(nameof(Book.Description), nameof(BookDto.Description))]
+    [MapProperty(nameof(Book.Pages), nameof(BookDto.Pages))]
     [MapProperty(nameof(Book.Price), nameof(BookDto.Price))]
     [MapProperty(nameof(Book.Genres), nameof(BookDto.Genres))]
     public partial BookDto ToBookDto(Book book);

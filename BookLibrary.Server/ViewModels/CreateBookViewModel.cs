@@ -9,7 +9,7 @@ public class CreateBookViewModel
     public string Name { get; init; }
 
     [Required(ErrorMessage = "The Content field is required.")]
-    public string Content { get; init; }
+    public string Description { get; init; }
 
     [Required(ErrorMessage = "The Price field is required.")]
     public decimal Price { get; init; }

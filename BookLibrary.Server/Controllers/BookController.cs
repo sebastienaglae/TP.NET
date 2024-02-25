@@ -30,7 +30,7 @@ public class BookController : Controller
         itemsPerPage = Math.Min(itemsPerPage, 100);
         page = Math.Max(page, 1);
 
-        var totalPages = await GetTotalPageAsync(itemsPerPage);
+        var totalPages = await GetTotalPageAsync(itemsPerPage, _context.Books);
 
         page = Math.Min(page, totalPages);
 
@@ -47,10 +47,44 @@ public class BookController : Controller
 
         return View(model);
     }
-
-    private async Task<int> GetTotalPageAsync(int itemsPerPage)
+    
+    public async Task<IActionResult> Search([FromQuery] BookSearchResultsViewModel filter)
     {
-        int booksCount = await _context.Books.CountAsync();
+        var totalPages = await GetTotalPageAsync(filter.ItemsPerPage, ApplyFilter(_context.Books, filter));
+
+        filter.Page = Math.Min(filter.Page, totalPages);
+
+        var books = ApplyFilter(_context.Books, filter)
+            .OrderBy(b => b.Name)
+            .Skip((filter.Page - 1) * filter.ItemsPerPage)
+            .Take(filter.ItemsPerPage)
+            .Include(b => b.Authors)
+            .Include(b => b.Genres);
+
+        var booksResults = await books.ToListAsync();
+        var paginationResults = new PaginationInfo(filter.Page, filter.ItemsPerPage, totalPages);
+        var model = new BookResultsViewModel(booksResults, paginationResults);
+
+        return View("_ListTable", model);
+        
+        static IQueryable<Book> ApplyFilter(IQueryable<Book> books, BookSearchResultsViewModel filter)
+        {
+            if (!string.IsNullOrWhiteSpace(filter.Title))
+                books = books.Where(b => b.Name.Contains(filter.Title));
+
+            if (!string.IsNullOrWhiteSpace(filter.Author))
+                books = books.Where(b => b.Authors.Any(a => a.FirstName.Contains(filter.Author) || a.LastName.Contains(filter.Author)));
+
+            if (!string.IsNullOrWhiteSpace(filter.Genre))
+                books = books.Where(b => b.Genres.Any(g => g.Name.Contains(filter.Genre)));
+
+            return books;
+        }
+    }
+
+    private async Task<int> GetTotalPageAsync(int itemsPerPage, IQueryable<Book> books)
+    {
+        int booksCount = await books.CountAsync();
         return booksCount / itemsPerPage + (booksCount % itemsPerPage == 0 ? 0 : 1);
     }
 
@@ -60,7 +94,7 @@ public class BookController : Controller
         var model = new CreateBookViewModel
         {
             Name = "Book Name",
-            Content = "Book Content",
+            Description = "Book Content",
             Price = 10.0m
         };
 
@@ -80,7 +114,7 @@ public class BookController : Controller
         var book = new Book
         {
             Name = model.Name,
-            Content = model.Content,
+            Description = model.Description,
             Price = model.Price,
             Genres = await _context.Genres.Where(g => model.GenreIds.Contains(g.Id)).ToListAsync(),
             Authors = await _context.Authors.Where(a => model.AuthorIds.Contains(a.Id)).ToListAsync()
@@ -117,7 +151,7 @@ public class BookController : Controller
         {
             Id = book.Id,
             Name = book.Name,
-            Content = book.Content,
+            Description = book.Description,
             Price = book.Price,
             GenreIds = book.Genres.Select(g => g.Id).ToList(),
             AuthorIds = book.Authors.Select(a => a.Id).ToList()
@@ -156,7 +190,7 @@ public class BookController : Controller
         if (book is null) return NotFound();
 
         book.Name = model.Name;
-        book.Content = model.Content;
+        book.Description = model.Description;
         book.Price = model.Price;
         book.Genres = _context.Genres.Where(g => model.GenreIds.Contains(g.Id)).ToList();
         book.Authors = _context.Authors.Where(a => model.AuthorIds.Contains(a.Id)).ToList();
@@ -196,7 +230,7 @@ public class BookController : Controller
         {
             Id = book.Id,
             Name = book.Name,
-            Content = book.Content,
+            Description = book.Description,
             Price = book.Price,
             Authors = book.Authors.Select(a => a.FirstName + " " + a.LastName).ToList(),
             Genres = book.Genres.Select(g => g.Name).ToList()

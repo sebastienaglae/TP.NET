@@ -14,7 +14,9 @@ public class Book
 
     [Required] public ICollection<Author> Authors { get; set; }
 
-    [Required] public string Content { get; set; }
+    [Required] public string Description { get; set; }
+    
+    [Required] public List<string> Pages { get; set; }
 
     [Required] public decimal Price { get; set; }
 

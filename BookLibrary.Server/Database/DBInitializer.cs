@@ -38,27 +38,32 @@ public class DbInitializer
             new()
             {
                 Name = "The Hobbit", Authors = new List<Author> { authors[0] }, Price = 10.99m,
-                Genres = new List<Genre> { genres[0] }, Content = GenerateDummyContent(1000)
+                Genres = new List<Genre> { genres[0] }, Description = GenerateDummyContent(1000),
+                Pages = new List<string> { "Page 1\nBlablabla", "Page 2\nBlablabla", "Page 3\nBlablabla" }
             },
             new()
             {
                 Name = "The Lord of the Rings", Authors = new List<Author> { authors[1] }, Price = 19.99m,
-                Genres = new List<Genre> { genres[0] }, Content = GenerateDummyContent(1000)
+                Genres = new List<Genre> { genres[0] }, Description = GenerateDummyContent(1000),
+                Pages = new List<string> { "Page 1\nBlablabla", "Page 2\nBlablabla", "Page 3\nBlablabla" }
             },
             new()
             {
                 Name = "Foundation", Authors = new List<Author> { authors[0], authors[2] }, Price = 14.99m,
-                Genres = new List<Genre> { genres[1] }, Content = GenerateDummyContent(1000)
+                Genres = new List<Genre> { genres[1] }, Description = GenerateDummyContent(1000),
+                Pages = new List<string> { "Page 1\nBlablabla", "Page 2\nBlablabla", "Page 3\nBlablabla" }
             },
             new()
             {
                 Name = "It", Authors = new List<Author> { authors[3] }, Price = 12.99m,
-                Genres = new List<Genre> { genres[2] }, Content = GenerateDummyContent(1000)
+                Genres = new List<Genre> { genres[2] }, Description = GenerateDummyContent(1000),
+                Pages = new List<string> { "Page 1\nBlablabla", "Page 2\nBlablabla", "Page 3\nBlablabla" }
             },
             new()
             {
                 Name = "Pride and Prejudice", Authors = new List<Author> { authors[2], authors[3] }, Price = 9.99m,
-                Genres = new List<Genre> { genres[3] }, Content = GenerateDummyContent(1000)
+                Genres = new List<Genre> { genres[3] }, Description = GenerateDummyContent(1000),
+                Pages = new List<string> { "Page 1\nBlablabla", "Page 2\nBlablabla", "Page 3\nBlablabla" }
             }
         };
         bookDbContext.AddRange(books);

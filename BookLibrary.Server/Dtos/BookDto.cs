@@ -5,6 +5,7 @@ public record struct BookDto(
     string Title,
     BookAuthorDto[] Authors,
     string Description,
+    string[] Pages,
     decimal Price,
     BookGenreDto[] Genres
 );
