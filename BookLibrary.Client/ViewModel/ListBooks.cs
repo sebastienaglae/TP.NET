@@ -5,7 +5,6 @@ using BookLibrary.Client.Models;
 using BookLibrary.Client.Services;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.DependencyInjection;
 using Wpf.Ui.Controls;
 using MessageBox = System.Windows.MessageBox;
 
@@ -30,11 +29,6 @@ public sealed class ListBooks : INotifyPropertyChanged
         GenreTextChangedCommand = new RelayCommand<AutoSuggestBoxTextChangedEventArgs>(GenreTextChanged);
         GenreSuggestionChosenCommand = new RelayCommand<AutoSuggestBoxSuggestionChosenEventArgs>(GenreSuggestionChosen);
         PageLoadedCommand = new RelayCommand(OnLoadedCommand);
-    }
-
-    private async void OnLoadedCommand()
-    {
-        await _libraryService.LoadBooks(true);
     }
 
     public ObservableCollection<Author> SuggestedAuthors => Ioc.Default.GetService<LibraryService>()?.SuggestedAuthors!;
@@ -74,6 +68,11 @@ public sealed class ListBooks : INotifyPropertyChanged
     public ICommand PageLoadedCommand { get; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    private async void OnLoadedCommand()
+    {
+        await _libraryService.LoadBooks(true);
+    }
 
     private void AuthorSuggestionChosen(AutoSuggestBoxSuggestionChosenEventArgs? obj)
     {

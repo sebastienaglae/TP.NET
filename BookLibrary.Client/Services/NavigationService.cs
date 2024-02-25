@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 using BookLibrary.Client.ViewModel;
 using Wpf.Ui.Controls;
 
@@ -15,9 +14,10 @@ public class NavigationService : INavigationService
     private readonly Dictionary<Type, Type> _viewMapping = new()
     {
         [typeof(ListBooks)] = typeof(Pages.ListBooks),
-        [typeof(BookDetails)] = typeof(Pages.BookDetails)
+        [typeof(BookDetails)] = typeof(Pages.BookDetails),
+        [typeof(ReadBook)] = typeof(Pages.ReadBook)
     };
-    
+
     public void Navigate<T>(params object[] args)
     {
         var mainWindow = Application.Current.MainWindow as MainWindow;

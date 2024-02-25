@@ -78,6 +78,12 @@ public class LibraryService : INotifyPropertyChanged
             if (!_hasMore)
                 return;
             var response = await _bookApi.BookGetBooksAsync(genres, authors, _page);
+            if (response == null)
+            {
+                MessageBox.Show("Error while fetching books");
+                return;
+            }
+
             _hasMore = response.HasMore;
             response.Data?.ForEach(b => Books.Add(b.ToBook()));
             _page++;
@@ -97,22 +103,61 @@ public class LibraryService : INotifyPropertyChanged
 
     public async Task LoadBookById(int bookId)
     {
-        var result = await _bookApi.BookGetBookAsync(bookId);
-        Book = result.ToBook();
+        try
+        {
+            var result = await _bookApi.BookGetBookAsync(bookId);
+            if (result == null)
+            {
+                MessageBox.Show("Error while fetching book");
+                return;
+            }
+
+            Book = result.ToBook();
+        }
+        catch (Exception)
+        {
+            MessageBox.Show("Error while fetching book");
+        }
     }
 
     public async Task LoadSuggestedAuthors(string query)
     {
-        var authors = await GetAuthors(query);
-        SuggestedAuthors.Clear();
-        authors.ToList().ForEach(a => SuggestedAuthors.Add(a));
+        try
+        {
+            var authors = await GetAuthors(query);
+            if (authors == null)
+            {
+                MessageBox.Show("Error while fetching authors");
+                return;
+            }
+
+            SuggestedAuthors.Clear();
+            authors.ToList().ForEach(a => SuggestedAuthors.Add(a));
+        }
+        catch (Exception)
+        {
+            MessageBox.Show("Error while fetching authors");
+        }
     }
 
     public async Task LoadSuggestedGenres(string query)
     {
-        var genres = await GetGenres(query);
-        SuggestedGenres.Clear();
-        genres.ToList().ForEach(g => SuggestedGenres.Add(g));
+        try
+        {
+            var genres = await GetGenres(query);
+            if (genres == null)
+            {
+                MessageBox.Show("Error while fetching genres");
+                return;
+            }
+
+            SuggestedGenres.Clear();
+            genres.ToList().ForEach(g => SuggestedGenres.Add(g));
+        }
+        catch (Exception)
+        {
+            MessageBox.Show("Error while fetching genres");
+        }
     }
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
