@@ -1,16 +1,22 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows.Input;
 using BookLibrary.Client.Models;
 using BookLibrary.Client.Services;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
+using Wpf.Ui.Controls;
 using MessageBox = System.Windows.MessageBox;
 
 namespace BookLibrary.Client.ViewModel;
 
-public class ListBooks
+public sealed class ListBooks : INotifyPropertyChanged
 {
-    private readonly LibraryService? _libraryService = Ioc.Default.GetService<LibraryService>();
+    private readonly LibraryService _libraryService = Ioc.Default.GetRequiredService<LibraryService>();
+    private string _authorText = "";
+
+    private string _genreText = "";
 
     public ListBooks()
     {
@@ -18,11 +24,21 @@ public class ListBooks
         RemoveGenreCommand = new RelayCommand<Genre>(OnRemoveGenreCommand);
         ShowBookDetailsCommand = new RelayCommand<Book>(OnShowBookDetailsCommand);
         SearchCommand = new AsyncRelayCommand(OnSearch);
-        _libraryService.ResetBooks();
-
-        OnSearch();
+        AuthorTextChangedCommand = new RelayCommand<AutoSuggestBoxTextChangedEventArgs>(AuthorTextChanged);
+        AuthorSuggestionChosenCommand =
+            new RelayCommand<AutoSuggestBoxSuggestionChosenEventArgs>(AuthorSuggestionChosen);
+        GenreTextChangedCommand = new RelayCommand<AutoSuggestBoxTextChangedEventArgs>(GenreTextChanged);
+        GenreSuggestionChosenCommand = new RelayCommand<AutoSuggestBoxSuggestionChosenEventArgs>(GenreSuggestionChosen);
+        PageLoadedCommand = new RelayCommand(OnLoadedCommand);
     }
 
+    private async void OnLoadedCommand()
+    {
+        await _libraryService.LoadBooks(true);
+    }
+
+    public ObservableCollection<Author> SuggestedAuthors => Ioc.Default.GetService<LibraryService>()?.SuggestedAuthors!;
+    public ObservableCollection<Genre> SuggestedGenres => Ioc.Default.GetService<LibraryService>()?.SuggestedGenres!;
     public ObservableCollection<Author?> FilteredAuthors { get; } = [];
     public ObservableCollection<Genre?> FilteredGenres { get; } = [];
     public ObservableCollection<Book> Books { get; } = Ioc.Default.GetService<LibraryService>()?.Books!;
@@ -30,14 +46,84 @@ public class ListBooks
     public ICommand RemoveGenreCommand { get; }
     public ICommand ShowBookDetailsCommand { get; }
     public ICommand SearchCommand { get; }
+    public ICommand AuthorTextChangedCommand { get; }
+    public ICommand AuthorSuggestionChosenCommand { get; }
+
+    public string AuthorText
+    {
+        get => _authorText;
+        set
+        {
+            _authorText = value;
+            OnPropertyChanged(nameof(AuthorText));
+        }
+    }
+
+    public string GenreText
+    {
+        get => _genreText;
+        set
+        {
+            _genreText = value;
+            OnPropertyChanged(nameof(GenreText));
+        }
+    }
+
+    public ICommand GenreTextChangedCommand { get; }
+    public ICommand GenreSuggestionChosenCommand { get; }
+    public ICommand PageLoadedCommand { get; }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void AuthorSuggestionChosen(AutoSuggestBoxSuggestionChosenEventArgs? obj)
+    {
+        if (obj == null)
+            return;
+        AddAuthor(obj.SelectedItem as Author);
+    }
+
+    private void GenreSuggestionChosen(AutoSuggestBoxSuggestionChosenEventArgs? obj)
+    {
+        if (obj == null)
+            return;
+        AddGenre(obj.SelectedItem as Genre);
+    }
+
+    private async void AuthorTextChanged(AutoSuggestBoxTextChangedEventArgs? args)
+    {
+        if (string.IsNullOrEmpty(AuthorText))
+        {
+            SuggestedAuthors.Clear();
+            return;
+        }
+
+        await _libraryService.LoadSuggestedAuthors(AuthorText);
+    }
+
+    private async void GenreTextChanged(AutoSuggestBoxTextChangedEventArgs? args)
+    {
+        if (string.IsNullOrEmpty(GenreText))
+        {
+            SuggestedGenres.Clear();
+            return;
+        }
+
+        await _libraryService.LoadSuggestedGenres(GenreText);
+    }
+
+
+    private void OnPropertyChanged(string propertyName)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 
     private async void OnShowBookDetailsCommand(Book? obj)
     {
         if (obj == null)
             return;
 
-        await _libraryService?.LoadBookById(obj.Id)!;
-        Ioc.Default.GetService<INavigationService>()?.Navigate<BookDetails>(typeof(BookDetails), obj.Id);
+        await _libraryService.LoadBookById(obj.Id);
+        Ioc.Default.GetRequiredService<INavigationService>().Navigate<BookDetails>();
     }
 
     private void OnRemoveAuthorCommand(Author? obj)
@@ -56,36 +142,26 @@ public class ListBooks
         FilteredGenres.Remove(obj);
     }
 
-    public void AddAuthor(Author? argsSelectedItem)
+    private void AddAuthor(Author? argsSelectedItem)
     {
         if (argsSelectedItem == null || FilteredAuthors.Any(a => a != null && a.Id == argsSelectedItem.Id)) return;
         FilteredAuthors.Add(argsSelectedItem);
     }
 
-    public void AddGenre(Genre? argsSelectedItem)
+    private void AddGenre(Genre? argsSelectedItem)
     {
         if (argsSelectedItem == null || FilteredGenres.Any(a => a != null && a.Id == argsSelectedItem.Id)) return;
         FilteredGenres.Add(argsSelectedItem);
     }
 
-    public async Task<List<Genre>> GetGenres(string query)
-    {
-        return await _libraryService?.GetGenres(query)!;
-    }
-
-    public async Task<List<Author>> GetAuthors(string query)
-    {
-        return await _libraryService?.GetAuthors(query)!;
-    }
-
-    public async Task OnSearch()
+    private async Task OnSearch()
     {
         try
         {
             var authors = FilteredAuthors.Where(a => a != null).Select(a => a!.Id).ToList();
             var genres = FilteredGenres.Where(a => a != null).Select(a => a!.Id).ToList();
 
-            await _libraryService?.LoadBooks(genres, authors)!;
+            await _libraryService.LoadBooks(genres, authors, true);
         }
         catch (Exception)
         {

@@ -8,9 +8,20 @@
       xmlns:models="clr-namespace:BookLibrary.Client.Models"
       xmlns:controls="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:viewModel="clr-namespace:BookLibrary.Client.ViewModel"
+      xmlns:behaviours="http://schemas.microsoft.com/xaml/behaviors"
       d:DesignHeight="450" d:DesignWidth="800"
-      d:DataContext="{d:DesignInstance Type=viewModel:ListBooks, d:IsDesignTimeCreatable=True}"
       Title="ListBook">
+    <Page.DataContext>
+        <viewModel:ListBooks />
+    </Page.DataContext>
+    <Page.Resources>
+        <viewModel:Navigator x:Key="Navigator" />
+    </Page.Resources>
+    <behaviours:Interaction.Triggers>
+        <behaviours:EventTrigger EventName="Loaded">
+            <behaviours:InvokeCommandAction Command="{Binding PageLoadedCommand}" />
+        </behaviours:EventTrigger>
+    </behaviours:Interaction.Triggers>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition MaxWidth="400" />
@@ -29,14 +40,24 @@
                 </StackPanel>
                 <StackPanel>
                     <Label>Choose Authors</Label>
-                    <ui:AutoSuggestBox
-                        PlaceholderText="Type an Author ..."
-                        TextChanged="Author_AutoSuggestBox_TextChanged"
-                        SuggestionChosen="Author_AutoSuggestBox_SuggestionChosen" />
+                    <ui:AutoSuggestBox PlaceholderText="Type here..."
+                                       OriginalItemsSource="{Binding SuggestedAuthors}"
+                                       Text="{Binding AuthorText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <behaviours:Interaction.Triggers>
+                            <behaviours:EventTrigger EventName="TextChanged">
+                                <behaviours:InvokeCommandAction Command="{Binding AuthorTextChangedCommand}"
+                                                                PassEventArgsToCommand="True" />
+                            </behaviours:EventTrigger>
+                            <behaviours:EventTrigger EventName="SuggestionChosen">
+                                <behaviours:InvokeCommandAction Command="{Binding AuthorSuggestionChosenCommand}"
+                                                                PassEventArgsToCommand="True" />
+                            </behaviours:EventTrigger>
+                        </behaviours:Interaction.Triggers>
+                    </ui:AutoSuggestBox>
                     <StackPanel Margin="8,8,8,8">
                         <Label>Selected Authors</Label>
-                        <ListView ItemsSource="{Binding FilteredAuthors}" DataContext="{Binding}"
-                                  IsHitTestVisible="true" IsManipulationEnabled="False">
+                        <ListView ItemsSource="{Binding FilteredAuthors}" IsHitTestVisible="true"
+                                  IsManipulationEnabled="False">
                             <controls:ListView.View>
                                 <controls:GridView />
                             </controls:ListView.View>
@@ -61,10 +82,20 @@
 
                 <StackPanel>
                     <Label>Choose Genres</Label>
-                    <ui:AutoSuggestBox
-                        PlaceholderText="Type a Genre ..."
-                        TextChanged=" Genre_AutoSuggestBox_TextChanged"
-                        SuggestionChosen="Genre_AutoSuggestBox_SuggestionChosen" />
+                    <ui:AutoSuggestBox PlaceholderText="Type here..."
+                                       OriginalItemsSource="{Binding SuggestedGenres}"
+                                       Text="{Binding GenreText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <behaviours:Interaction.Triggers>
+                            <behaviours:EventTrigger EventName="TextChanged">
+                                <behaviours:InvokeCommandAction Command="{Binding GenreTextChangedCommand}"
+                                                                PassEventArgsToCommand="True" />
+                            </behaviours:EventTrigger>
+                            <behaviours:EventTrigger EventName="SuggestionChosen">
+                                <behaviours:InvokeCommandAction Command="{Binding GenreSuggestionChosenCommand}"
+                                                                PassEventArgsToCommand="True" />
+                            </behaviours:EventTrigger>
+                        </behaviours:Interaction.Triggers>
+                    </ui:AutoSuggestBox>
                     <StackPanel Margin="8,8,8,8">
                         <Label>Selected Genres</Label>
                         <ListView ItemsSource="{Binding FilteredGenres}" IsHitTestVisible="true"

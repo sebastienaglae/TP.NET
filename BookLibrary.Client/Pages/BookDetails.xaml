@@ -6,8 +6,10 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       mc:Ignorable="d"
       xmlns:viewModel="clr-namespace:BookLibrary.Client.ViewModel"
-      Title="BookDetails" Height="450" Width="800"
-      d:DataContext="{d:DesignInstance Type=viewModel:BookDetails, d:IsDesignTimeCreatable=True}">
+      Title="BookDetails" Height="450" Width="800">
+    <Page.DataContext>
+        <viewModel:BookDetails />
+    </Page.DataContext>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -28,7 +30,7 @@
                 <Label Content="Description:" FontWeight="Bold" Foreground="White" />
                 <TextBlock Text="{Binding Book.Description}" Foreground="White" TextWrapping="Wrap" />
                 <TextBlock Text="Authors:" Foreground="White" FontWeight="Bold" />
-                <ItemsControl ItemsSource="{Binding Authors}">
+                <ItemsControl ItemsSource="{Binding Book.Authors}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Foreground="White" Text="{Binding}" />
@@ -36,7 +38,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
                 <TextBlock Text="Genres:" FontWeight="Bold" Foreground="White" />
-                <ItemsControl ItemsSource="{Binding Genres}">
+                <ItemsControl ItemsSource="{Binding Book.Genres}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding}" Foreground="White" />

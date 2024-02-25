@@ -17,6 +17,8 @@ public class LibraryService : INotifyPropertyChanged
     private int _page;
 
     public ObservableCollection<Book> Books { get; } = [];
+    public ObservableCollection<Author> SuggestedAuthors { get; } = [];
+    public ObservableCollection<Genre> SuggestedGenres { get; } = [];
 
     public Book Book
     {
@@ -33,7 +35,7 @@ public class LibraryService : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public async Task<List<Genre>> GetGenres(string query)
+    private async Task<List<Genre>> GetGenres(string query)
     {
         try
         {
@@ -47,7 +49,7 @@ public class LibraryService : INotifyPropertyChanged
         }
     }
 
-    public async Task<List<Author>> GetAuthors(string query)
+    private async Task<List<Author>> GetAuthors(string query)
     {
         try
         {
@@ -61,8 +63,16 @@ public class LibraryService : INotifyPropertyChanged
         }
     }
 
-    public async Task LoadBooks(List<int> genres, List<int> authors)
+    public async Task LoadBooks(bool reset = false)
     {
+        await LoadBooks([], [], reset);
+    }
+
+    public async Task LoadBooks(List<int> genres, List<int> authors, bool reset = false)
+    {
+        if (reset)
+            ResetBooks();
+
         try
         {
             if (!_hasMore)
@@ -78,7 +88,7 @@ public class LibraryService : INotifyPropertyChanged
         }
     }
 
-    public void ResetBooks()
+    private void ResetBooks()
     {
         _page = 0;
         _hasMore = true;
@@ -89,6 +99,20 @@ public class LibraryService : INotifyPropertyChanged
     {
         var result = await _bookApi.BookGetBookAsync(bookId);
         Book = result.ToBook();
+    }
+
+    public async Task LoadSuggestedAuthors(string query)
+    {
+        var authors = await GetAuthors(query);
+        SuggestedAuthors.Clear();
+        authors.ToList().ForEach(a => SuggestedAuthors.Add(a));
+    }
+
+    public async Task LoadSuggestedGenres(string query)
+    {
+        var genres = await GetGenres(query);
+        SuggestedGenres.Clear();
+        genres.ToList().ForEach(g => SuggestedGenres.Add(g));
     }
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
