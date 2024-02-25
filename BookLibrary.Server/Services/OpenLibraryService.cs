@@ -38,15 +38,14 @@ public class OpenLibraryService
             };
             foreach (var author in authors)
             {
-                int lastSpace = author.Data!.Name.LastIndexOf(' ');
-                if (lastSpace == -1)
-                    continue;
-                
-                bookModel.Authors.Add(new Author
+                if (ExtractAuthorName(author.Data!.Name, out var firstName, out var lastName))
                 {
-                    FirstName = author.Data.Name[..lastSpace],
-                    LastName = author.Data.Name[(lastSpace + 1)..]
-                });
+                    bookModel.Authors.Add(new Author
+                    {
+                        FirstName = firstName,
+                        LastName = lastName
+                    });
+                }
             }
             
             return bookModel;
@@ -56,5 +55,24 @@ public class OpenLibraryService
             return null;
         }
 
+    }
+    
+    private static bool ExtractAuthorName(string authorName, out string firstName, out string lastName)
+    {
+        firstName = string.Empty;
+        lastName = string.Empty;
+        
+        ReadOnlySpan<char> authorNameSpan = authorName;
+        int separatorIndex = authorNameSpan.IndexOf('-');
+        if (separatorIndex != -1)
+            authorNameSpan = authorNameSpan[..separatorIndex].Trim();
+        
+        int lastSpace = authorNameSpan.LastIndexOf(' ');
+        if (lastSpace == -1)
+            return false;
+        
+        firstName = authorNameSpan[..lastSpace].ToString();
+        lastName = authorNameSpan[(lastSpace + 1)..].ToString();
+        return true;
     }
 }

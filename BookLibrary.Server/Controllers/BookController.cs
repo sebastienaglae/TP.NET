@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BookLibrary.Server.Database;
@@ -206,21 +207,40 @@ public class BookController : Controller
         return RedirectToAction("List");
     }
     
-    [HttpPost]
     [Authenticate(AdminRole.EditBooks)]
-    public async Task<ActionResult<ImportBookResponse>> Import(int bookId, string isbn)
+    public async Task<ActionResult<ImportBookResponse>> FetchFromISBN(string isbn)
     {
-        var book = await _context.Books.FindAsync(bookId);
-        if (book is null)
-            return NotFound();
-
         var openLibraryBook = await _openLibraryService.GetBookAsync(isbn);
         if (openLibraryBook is null)
             return BadRequest("Invalid ISBN.");
         
+        var foundAuthors = new List<Author>();
+        var unknownAuthors = new List<Author>();
+        foreach (var author in openLibraryBook.Authors)
+        {
+            var dbAuthor = await _context.Authors.FirstOrDefaultAsync(a => EF.Functions.Like(a.FirstName, author.FirstName) && EF.Functions.Like(a.LastName, author.LastName));
+            if (dbAuthor is not null)
+                foundAuthors.Add(dbAuthor);
+            else
+                unknownAuthors.Add(author);
+        }
         
-
-        return null;
+        return new ImportBookResponse
+        {
+            Name = openLibraryBook.Name,
+            Description = openLibraryBook.Description,
+            MissingAuthors = unknownAuthors.Select(a => new ImportBookMissingAuthor
+            {
+                FirstName = a.FirstName,
+                LastName = a.LastName
+            }),
+            FoundAuthors = foundAuthors.Select(a => new ImportBookFoundAuthor
+            {
+                Id = a.Id,
+                FirstName = a.FirstName,
+                LastName = a.LastName
+            })
+        };
     }
 
     public async Task<IActionResult> Details(int id)

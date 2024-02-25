@@ -43,6 +43,22 @@ public class AuthorController : Controller
 
         return View(model);
     }
+    
+    [HttpPost]
+    [Authenticate(AdminRole.AddAuthors)]
+    public async Task<IActionResult> CreateMany([FromBody] CreateManyAuthorsViewModel model)
+    {
+        var authors = model.Authors.Select(a => new Author
+        {
+            FirstName = a.FirstName,
+            LastName = a.LastName
+        });
+        
+        _context.Authors.AddRange(authors);
+        await _context.SaveChangesAsync();
+
+        return Ok();
+    }
 
     [Authenticate(AdminRole.EditAuthors)]
     public async Task<IActionResult> Edit(int id)

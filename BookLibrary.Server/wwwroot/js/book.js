@@ -85,6 +85,63 @@ $(document).ready(function () {
 
         addPagesButton.before(pageDiv);
     });
+    
+    // importFromIsbn
+    const importFromISBN = isbn => {
+        fetch("/Book/FetchFromISBN?isbn=" + isbn)
+            .then(response => response.json())
+            .then(data => {
+                const nameInput = document.getElementById('Name');
+                const descriptionInput = document.getElementById('Description');
+
+                nameInput.value = data.name;
+                descriptionInput.value = data.description;
+
+                if (data.missingAuthors && data.missingAuthors.length > 0) {
+                    console.log(data.missingAuthors);
+                    if (confirm('Authors not found: ' + data.missingAuthors.map(x => x.firstName + ' ' + x.lastName).join(', ') + '. Create them?')) {
+                        fetch('/Author/CreateMany', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                authors: data.missingAuthors
+                            })
+                        }).then(data => {
+                            // reimport
+                            importFromISBN(isbn);
+                        });
+                        return;
+                    }
+                }
+                if (data.foundAuthors) {
+                    // remove all authors
+                    const selectedAuthors = document.getElementById('selectedAuthors');
+                    selectedAuthors.innerHTML = '';
+                    // add authors
+                    for (let i = 0; i < data.foundAuthors.length; i++) {
+                        const author = data.foundAuthors[i];
+                        selectedAuthors.innerHTML += '<div class="chip" data-id="' + author.id + '">' + author.firstName + ' ' + author.lastName + '<span class="closebtn" onclick="removeItem(this, \'AuthorIds\', \'' + author.id + '\');">&times;</span></div>';
+                        selectedAuthors.innerHTML += '<input type="hidden" name="AuthorIds" value="' + author.id + '">';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error fetching book from ISBN');
+            });
+    }
+    const importButton = document.getElementById('importFromIsbn');
+    importButton.addEventListener('click', function () {
+        // open popup to enter ISBN
+        const isbn = prompt('Enter ISBN');
+        if (isbn != null) {
+            importFromISBN(isbn);
+        } else {
+            alert('No ISBN entered');
+        }
+    });
 });
 
 function deletePage(btn) {

@@ -54,7 +54,7 @@ builder.Services.AddMvc();
 WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment() && false)
+if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 }
