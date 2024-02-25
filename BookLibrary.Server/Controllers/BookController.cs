@@ -2,20 +2,26 @@
 using System.Linq;
 using System.Threading.Tasks;
 using BookLibrary.Server.Database;
+using BookLibrary.Server.Dtos;
 using BookLibrary.Server.Models;
+using BookLibrary.Server.Services;
 using BookLibrary.Server.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookLibrary.Server.Controllers;
 
+[Authenticate]
 public class BookController : Controller
 {
     private readonly LibraryDbContext _context;
+    private readonly OpenLibraryService _openLibraryService;
 
-    public BookController(LibraryDbContext context)
+    public BookController(LibraryDbContext context, OpenLibraryService openLibraryService)
     {
         _context = context;
+        _openLibraryService = openLibraryService;
     }
 
     public async Task<IActionResult> List(int itemsPerPage = 10, int page = 1)
@@ -24,7 +30,7 @@ public class BookController : Controller
         itemsPerPage = Math.Min(itemsPerPage, 100);
         page = Math.Max(page, 1);
 
-        var totalPages = GetTotalPage(itemsPerPage);
+        var totalPages = await GetTotalPageAsync(itemsPerPage);
 
         page = Math.Min(page, totalPages);
 
@@ -42,11 +48,13 @@ public class BookController : Controller
         return View(model);
     }
 
-    private int GetTotalPage(int itemsPerPage)
+    private async Task<int> GetTotalPageAsync(int itemsPerPage)
     {
-        return (int)Math.Ceiling(_context.Books.Count() / (double)itemsPerPage);
+        int booksCount = await _context.Books.CountAsync();
+        return booksCount / itemsPerPage + (booksCount % itemsPerPage == 0 ? 0 : 1);
     }
 
+    [Authenticate(AdminRole.AddBooks)]
     public IActionResult Create()
     {
         var model = new CreateBookViewModel
@@ -60,6 +68,7 @@ public class BookController : Controller
     }
 
     [HttpPost]
+    [Authenticate(AdminRole.AddBooks)]
     public async Task<IActionResult> Create(CreateBookViewModel model)
     {
         if (!ModelState.IsValid)
@@ -73,8 +82,8 @@ public class BookController : Controller
             Name = model.Name,
             Content = model.Content,
             Price = model.Price,
-            Genres = _context.Genres.Where(g => model.GenreIds.Contains(g.Id)).ToList(),
-            Authors = _context.Authors.Where(a => model.AuthorIds.Contains(a.Id)).ToList()
+            Genres = await _context.Genres.Where(g => model.GenreIds.Contains(g.Id)).ToListAsync(),
+            Authors = await _context.Authors.Where(a => model.AuthorIds.Contains(a.Id)).ToListAsync()
         };
 
         _context.Books.Add(book);
@@ -83,23 +92,25 @@ public class BookController : Controller
         return RedirectToAction("List");
     }
 
-    public IActionResult Delete(int id)
+    [Authenticate(AdminRole.DeleteBooks)]
+    public async Task<IActionResult> Delete(int id)
     {
-        var book = _context.Books.Find(id);
+        var book = await _context.Books.FindAsync(id);
         if (book is null) return NotFound();
 
         _context.Books.Remove(book);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
         return RedirectToAction("List");
     }
 
-    public IActionResult Edit(int id)
+    [Authenticate(AdminRole.EditBooks)]
+    public async Task<IActionResult> Edit(int id)
     {
-        var book = _context.Books
+        var book = await _context.Books
             .Include(b => b.Authors)
             .Include(b => b.Genres)
-            .FirstOrDefault(b => b.Id == id);
+            .FirstOrDefaultAsync(b => b.Id == id);
         if (book is null) return NotFound();
 
         var model = new EditBookViewModel
@@ -129,6 +140,7 @@ public class BookController : Controller
     }
 
     [HttpPost]
+    [Authenticate(AdminRole.EditBooks)]
     public async Task<IActionResult> Edit(EditBookViewModel model)
     {
         if (!ModelState.IsValid)
@@ -137,11 +149,10 @@ public class BookController : Controller
             return View(model);
         }
 
-        var book = _context.Books
+        var book = await _context.Books
             .Include(b => b.Authors)
             .Include(b => b.Genres)
-            .FirstOrDefault(b => b.Id == model.Id);
-
+            .FirstOrDefaultAsync(b => b.Id == model.Id);
         if (book is null) return NotFound();
 
         book.Name = model.Name;
@@ -155,13 +166,30 @@ public class BookController : Controller
 
         return RedirectToAction("List");
     }
-
-    public IActionResult Details(int id)
+    
+    [HttpPost]
+    [Authenticate(AdminRole.EditBooks)]
+    public async Task<ActionResult<ImportBookResponse>> Import(int bookId, string isbn)
     {
-        var book = _context.Books
+        var book = await _context.Books.FindAsync(bookId);
+        if (book is null)
+            return NotFound();
+
+        var openLibraryBook = await _openLibraryService.GetBookAsync(isbn);
+        if (openLibraryBook is null)
+            return BadRequest("Invalid ISBN.");
+        
+        
+
+        return null;
+    }
+
+    public async Task<IActionResult> Details(int id)
+    {
+        var book = await _context.Books
             .Include(b => b.Authors)
             .Include(b => b.Genres)
-            .FirstOrDefault(b => b.Id == id);
+            .FirstOrDefaultAsync(b => b.Id == id);
         if (book is null) return NotFound();
 
         var model = new DetailsBookViewModel
