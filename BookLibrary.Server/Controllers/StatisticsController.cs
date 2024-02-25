@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BookLibrary.Server.Database;
@@ -26,24 +27,37 @@ public class StatisticsController(ILogger<StatisticsController> logger, LibraryD
                 dbContext.Genres.CountAsync()
             };
             var (booksCount, authorsCount, genresCount) = (await countTasks[0], await countTasks[1], await countTasks[2]);
-            
-            var minMedMaxBookTasks = new []
+
+            Task<int>[] minMedMaxBookTasks;
+            Task<decimal>[] minMedMaxBookPriceTasks;
+            // EF doesn't support Sum(s => s.Length), so we have to do plain LINQ (which is not supported by in-memory database)
+            if (dbContext.Database.IsInMemory())
             {
-                dbContext.Books.MinAsync(b => b.Pages.Sum(p => p.Length)),
-                dbContext.Books.OrderBy(b => b.Pages.Sum(p => p.Length)).Select(b => b.Pages.Sum(p => p.Length)).Skip(booksCount / 2).FirstOrDefaultAsync(),
-                dbContext.Books.MaxAsync(b => b.Pages.Sum(p => p.Length))
-            };
-            var minMedMaxBookPriceTasks = new []
+                minMedMaxBookTasks = new []
+                {
+                    dbContext.Books.ToListAsync().ContinueWith(t => t.Result.Min(b => b.Pages.Sum(p => p.Length))),
+                    dbContext.Books.ToListAsync().ContinueWith(t => t.Result.OrderBy(b => b.Pages.Sum(p => p.Length)).Select(b => b.Pages.Sum(p => p.Length)).Skip(booksCount / 2).FirstOrDefault()),
+                    dbContext.Books.ToListAsync().ContinueWith(t => t.Result.Max(b => b.Pages.Sum(p => p.Length)))
+                };
+                minMedMaxBookPriceTasks = new []
+                {
+                    dbContext.Books.ToListAsync().ContinueWith(t => t.Result.Min(b => b.Price)),
+                    dbContext.Books.ToListAsync().ContinueWith(t => t.Result.OrderBy(b => b.Price).Select(b => b.Price).Skip(booksCount / 2).FirstOrDefault()),
+                    dbContext.Books.ToListAsync().ContinueWith(t => t.Result.Max(b => b.Price))
+                };
+            }
+            else
             {
-                dbContext.Books.MinAsync(b => b.Price),
-                dbContext.Books.OrderBy(b => b.Price).Select(b => b.Price).Skip(booksCount / 2).FirstOrDefaultAsync(),
-                dbContext.Books.MaxAsync(b => b.Price)
-            };
+                throw new NotImplementedException("This is not implemented");
+            }
             var authorsBooksCountTask = dbContext.Authors
                 .Include(a => a.Books)
                 .ToDictionaryAsync(a => a, a => a.Books.Count);
+            var genresBooksCountTask = dbContext.Genres
+                .Include(g => g.Books)
+                .ToDictionaryAsync(g => g, g => g.Books.Count);
             
-            viewModel = new StatisticsViewModel(booksCount, authorsCount, genresCount, await authorsBooksCountTask,
+            viewModel = new StatisticsViewModel(booksCount, authorsCount, genresCount, await authorsBooksCountTask, await genresBooksCountTask,
                 await minMedMaxBookTasks[0], await minMedMaxBookTasks[1], await minMedMaxBookTasks[2],
                 await minMedMaxBookPriceTasks[0], await minMedMaxBookPriceTasks[1], await minMedMaxBookPriceTasks[2]);
             

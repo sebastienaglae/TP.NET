@@ -38,32 +38,32 @@ public class DbInitializer
             new()
             {
                 Name = "The Hobbit", Authors = new List<Author> { authors[0] }, Price = 10.99m,
-                Genres = new List<Genre> { genres[0] }, Description = GenerateDummyContent(1000),
-                Pages = new List<string> { "Page 1\nBlablabla", "Page 2\nBlablabla", "Page 3\nBlablabla" }
+                Genres = new List<Genre> { genres[0] }, Description = GenerateDummyContent(Random.Shared.Next(50, 100)),
+                Pages = new List<string> { GenerateDummyContent(Random.Shared.Next(100, 200)), GenerateDummyContent(Random.Shared.Next(100, 200)), GenerateDummyContent(Random.Shared.Next(100, 200)) }
             },
             new()
             {
                 Name = "The Lord of the Rings", Authors = new List<Author> { authors[1] }, Price = 19.99m,
-                Genres = new List<Genre> { genres[0] }, Description = GenerateDummyContent(1000),
-                Pages = new List<string> { "Page 1\nBlablabla", "Page 2\nBlablabla", "Page 3\nBlablabla" }
+                Genres = new List<Genre> { genres[0] }, Description = GenerateDummyContent(Random.Shared.Next(50, 100)),
+                Pages = new List<string> { GenerateDummyContent(Random.Shared.Next(100, 200)), GenerateDummyContent(Random.Shared.Next(100, 200)), GenerateDummyContent(Random.Shared.Next(100, 200)) }
             },
             new()
             {
                 Name = "Foundation", Authors = new List<Author> { authors[0], authors[2] }, Price = 14.99m,
-                Genres = new List<Genre> { genres[1] }, Description = GenerateDummyContent(1000),
-                Pages = new List<string> { "Page 1\nBlablabla", "Page 2\nBlablabla", "Page 3\nBlablabla" }
+                Genres = new List<Genre> { genres[1] }, Description = GenerateDummyContent(Random.Shared.Next(50, 100)),
+                Pages = new List<string> { GenerateDummyContent(Random.Shared.Next(100, 200)), GenerateDummyContent(Random.Shared.Next(100, 200)), GenerateDummyContent(Random.Shared.Next(100, 200)) }
             },
             new()
             {
                 Name = "It", Authors = new List<Author> { authors[3] }, Price = 12.99m,
-                Genres = new List<Genre> { genres[2] }, Description = GenerateDummyContent(1000),
-                Pages = new List<string> { "Page 1\nBlablabla", "Page 2\nBlablabla", "Page 3\nBlablabla" }
+                Genres = new List<Genre> { genres[2] }, Description = GenerateDummyContent(Random.Shared.Next(50, 100)),
+                Pages = new List<string> { GenerateDummyContent(Random.Shared.Next(100, 200)), GenerateDummyContent(Random.Shared.Next(100, 200)), GenerateDummyContent(Random.Shared.Next(100, 200)) }
             },
             new()
             {
                 Name = "Pride and Prejudice", Authors = new List<Author> { authors[2], authors[3] }, Price = 9.99m,
-                Genres = new List<Genre> { genres[3] }, Description = GenerateDummyContent(1000),
-                Pages = new List<string> { "Page 1\nBlablabla", "Page 2\nBlablabla", "Page 3\nBlablabla" }
+                Genres = new List<Genre> { genres[3] }, Description = GenerateDummyContent(Random.Shared.Next(50, 100)),
+                Pages = new List<string> { GenerateDummyContent(Random.Shared.Next(100, 200)), GenerateDummyContent(Random.Shared.Next(100, 200)), GenerateDummyContent(Random.Shared.Next(100, 200)) }
             }
         };
         bookDbContext.AddRange(books);
