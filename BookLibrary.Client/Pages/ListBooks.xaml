@@ -117,7 +117,7 @@
                 <ui:Button Content="Search" Command="{Binding SearchCommand}" Appearance="Primary" />
             </StackPanel>
         </Border>
-        <StackPanel Grid.Column="1" Margin="16,16,16,16">
+        <StackPanel Grid.Column="1" Margin="16,16,16,16" HorizontalAlignment="Center">
             <ItemsControl ItemsSource="{Binding Books}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>

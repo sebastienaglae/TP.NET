@@ -54,19 +54,13 @@ public class LibraryService : INotifyPropertyChanged
         try
         {
             var response = await _authorApi.AuthorGetAuthorsAsync(query);
-            return response?.Data.ToAuthors() ?? new List<Author>();
+            return response?.Data.ToAuthors() ?? [];
         }
         catch (Exception)
         {
             MessageBox.Show("Error while fetching authors");
-            return new List<Author>();
+            return [];
         }
-    }
-    
-    public async Task LoadPage(int page)
-    {
-        _page = page;
-        await LoadBooks();
     }
 
     public async Task LoadBooks(bool reset = false)
@@ -74,7 +68,7 @@ public class LibraryService : INotifyPropertyChanged
         await LoadBooks([], [], reset);
     }
 
-    public async Task LoadBooks(List<int> genres, List<int> authors, bool reset = false)
+    public async Task LoadBooks(List<int?> genres, List<int?> authors, bool reset = false)
     {
         if (reset)
             ResetBooks();
@@ -90,7 +84,7 @@ public class LibraryService : INotifyPropertyChanged
                 return;
             }
 
-            _hasMore = response.HasMore;
+            _hasMore = (bool)response.HasMore!;
             response.Data?.ForEach(b => Books.Add(b.ToBook()));
             _page++;
         }
@@ -131,11 +125,6 @@ public class LibraryService : INotifyPropertyChanged
         try
         {
             var authors = await GetAuthors(query);
-            if (authors == null)
-            {
-                MessageBox.Show("Error while fetching authors");
-                return;
-            }
 
             SuggestedAuthors.Clear();
             authors.ToList().ForEach(a => SuggestedAuthors.Add(a));
@@ -151,11 +140,6 @@ public class LibraryService : INotifyPropertyChanged
         try
         {
             var genres = await GetGenres(query);
-            if (genres == null)
-            {
-                MessageBox.Show("Error while fetching genres");
-                return;
-            }
 
             SuggestedGenres.Clear();
             genres.ToList().ForEach(g => SuggestedGenres.Add(g));

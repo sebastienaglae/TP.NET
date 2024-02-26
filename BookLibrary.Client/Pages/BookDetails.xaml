@@ -50,7 +50,7 @@
                 <ui:Button Margin="0,10,0,0" HorizontalAlignment="Right" Appearance="Primary"
                            Command="{Binding ShowReadBook}">
                     <ui:Button.Content>
-                        <ui:TextBlock FontTypography="Subtitle" Text="{Binding Book.Price}" Foreground="White"
+                        <ui:TextBlock FontTypography="Subtitle" Text="{Binding Book.Price, StringFormat={}{0}€}" Foreground="White"
                                       Padding="10" HorizontalAlignment="Right" />
                     </ui:Button.Content>
                 </ui:Button>

@@ -157,8 +157,8 @@ public sealed class ListBooks : INotifyPropertyChanged
     {
         try
         {
-            var authors = FilteredAuthors.Where(a => a != null).Select(a => a!.Id).ToList();
-            var genres = FilteredGenres.Where(a => a != null).Select(a => a!.Id).ToList();
+            var authors = FilteredAuthors.Where(a => a != null).Select(a => (int?)a!.Id).ToList();
+            var genres = FilteredGenres.Where(a => a != null).Select(a => (int?)a!.Id).ToList();
 
             await _libraryService.LoadBooks(genres, authors, true);
         }

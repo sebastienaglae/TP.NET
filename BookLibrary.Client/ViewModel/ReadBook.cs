@@ -14,21 +14,28 @@ namespace BookLibrary.Client.ViewModel;
 public class ReadBook : INotifyPropertyChanged
 {
     private int _currentPage;
+    private string _currentPages;
     private bool _hasNextPage;
     private bool _hasPreviousPage;
-    private SpeechSynthesizer _synthesizer;
     private bool _isPaused;
-    private string _textToSpeak = string.Empty;
-    public Book Book => Ioc.Default.GetRequiredService<LibraryService>().Book;
+    private string _pageOneText = "";
+
+    private string _pageTwoText = "";
+    private double _speakProgress;
+    private SpeechSynthesizer _synthesizer;
+    private string _textToSpeak;
+
 
     public ReadBook()
     {
         InitializeSpeechSynthesizer();
 
-        PreviousPageCommand = new RelayCommand<bool>(OnPreviousPageCommand);
-        NextPageCommand = new RelayCommand<bool>(OnNextPageCommand);
+        PreviousPageCommand = new RelayCommand(OnPreviousPageCommand);
+        NextPageCommand = new RelayCommand(OnNextPageCommand);
         PageOneSelectionChangedCommand = new RelayCommand<RoutedEventArgs>(StartFromCaret);
         PageTwoSelectionChangedCommand = new RelayCommand<RoutedEventArgs>(StartFromCaret);
+
+        LoadPages(0);
 
         if (_synthesizer == null)
             return;
@@ -38,56 +45,7 @@ public class ReadBook : INotifyPropertyChanged
         StopCommand = new RelayCommand(OnStopCommand);
     }
 
-    private void StartFromCaret(RoutedEventArgs? parameter)
-    {
-        if (parameter?.Source is RichTextBox richTextBox)
-        {
-            var caretPosition = richTextBox.CaretPosition;
-            var textRange = new TextRange(caretPosition, richTextBox.Document.ContentEnd);
-            var textFromCaretToStart = textRange.Text;
-            OnStopCommand();
-            _synthesizer.SpeakAsync(textFromCaretToStart);
-        }
-    }
-
-    private void InitializeSpeechSynthesizer()
-    {
-        _synthesizer = new SpeechSynthesizer();
-        _synthesizer.SpeakCompleted += (sender, e) =>
-        {
-            _isPaused = false;
-            CommandManager.InvalidateRequerySuggested();
-        };
-        _synthesizer.SpeakProgress += (sender, e) =>
-        {
-            SpeakProgress = e.CharacterPosition / e.CharacterCount;
-        };
-    }
-
-    private void OnResumeCommand()
-    {
-        _synthesizer.Resume();
-        _isPaused = false;
-    }
-
-    private void OnStopCommand()
-    {
-        _synthesizer.SpeakAsyncCancelAll();
-        _synthesizer.Resume();
-        _isPaused = false;
-    }
-
-    private void OnPauseCommand()
-    {
-        _synthesizer.Pause();
-        _isPaused = true;
-    }
-
-    private void OnPlayCommand()
-    {
-        var textToSpeak = "Bonjour a toi !"; // Replace with your text
-        _synthesizer.SpeakAsync(textToSpeak);
-    }
+    public Book Book => Ioc.Default.GetRequiredService<LibraryService>().Book;
 
     public bool HasPreviousPage
     {
@@ -115,15 +73,15 @@ public class ReadBook : INotifyPropertyChanged
         }
     }
 
-    public int CurrentPage
+    public string CurrentPages
     {
-        get => _currentPage;
+        get => _currentPages;
         set
         {
-            if (_currentPage != value)
+            if (_currentPages != value)
             {
-                _currentPage = value;
-                OnPropertyChanged(nameof(CurrentPage));
+                _currentPages = value;
+                OnPropertyChanged(nameof(CurrentPages));
             }
         }
     }
@@ -134,11 +92,10 @@ public class ReadBook : INotifyPropertyChanged
     public ICommand PauseCommand { get; }
     public ICommand StopCommand { get; }
     public ICommand ResumeCommand { get; }
-    private string _pageOneText = "Hello, this is a test.";
 
     public string PageOneText
     {
-        get { return _pageOneText; }
+        get => _pageOneText;
         set
         {
             _pageOneText = value;
@@ -146,11 +103,9 @@ public class ReadBook : INotifyPropertyChanged
         }
     }
 
-    private string _pageTwoText = "Hello, this is not a test.";
-
     public string PageTwoText
     {
-        get { return _pageTwoText; }
+        get => _pageTwoText;
         set
         {
             _pageTwoText = value;
@@ -160,11 +115,10 @@ public class ReadBook : INotifyPropertyChanged
 
     public ICommand PageOneSelectionChangedCommand { get; }
     public ICommand PageTwoSelectionChangedCommand { get; }
-    private double _speakProgress;
 
     public double SpeakProgress
     {
-        get { return _speakProgress; }
+        get => _speakProgress;
         set
         {
             _speakProgress = value;
@@ -174,14 +128,83 @@ public class ReadBook : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler PropertyChanged;
 
-    private void OnNextPageCommand(bool obj)
+    private void UpdateCurrentPages()
     {
-        OnStopCommand();
+        CurrentPages = $"{_currentPage + 1} - {_currentPage + 2}";
     }
 
-    private void OnPreviousPageCommand(bool obj)
+    private void StartFromCaret(RoutedEventArgs? parameter)
+    {
+        if (parameter?.Source is RichTextBox richTextBox)
+        {
+            var caretPosition = richTextBox.CaretPosition;
+            var textRange = new TextRange(caretPosition, richTextBox.Document.ContentEnd);
+            _textToSpeak = textRange.Text;
+            OnStopCommand();
+            _synthesizer.SpeakAsync(_textToSpeak);
+        }
+    }
+
+    private void InitializeSpeechSynthesizer()
+    {
+        _synthesizer = new SpeechSynthesizer();
+        _synthesizer.SpeakCompleted += (sender, e) =>
+        {
+            _isPaused = false;
+            SpeakProgress = 100;
+            CommandManager.InvalidateRequerySuggested();
+        };
+        _synthesizer.SpeakProgress += (sender, e) =>
+        {
+            SpeakProgress = (double)(e.CharacterPosition + e.CharacterCount) * 100 / _textToSpeak.Length;
+        };
+    }
+
+    private void OnResumeCommand()
+    {
+        _synthesizer.Resume();
+        _isPaused = false;
+    }
+
+    private void OnStopCommand()
+    {
+        _synthesizer.SpeakAsyncCancelAll();
+        _synthesizer.Resume();
+        _isPaused = false;
+    }
+
+    private void OnPauseCommand()
+    {
+        _synthesizer.Pause();
+        _isPaused = true;
+    }
+
+    private void OnPlayCommand()
+    {
+        _textToSpeak = PageOneText + PageTwoText;
+        _synthesizer.SpeakAsync(_textToSpeak);
+    }
+
+    private void OnNextPageCommand()
     {
         OnStopCommand();
+        LoadPages(_currentPage + 2);
+    }
+
+    private void OnPreviousPageCommand()
+    {
+        OnStopCommand();
+        LoadPages(_currentPage - 2);
+    }
+
+    private void LoadPages(int page)
+    {
+        _currentPage = page;
+        UpdateCurrentPages();
+        HasPreviousPage = _currentPage > 0;
+        HasNextPage = _currentPage + 2 < Book.Pages.Length;
+        PageOneText = _currentPage < Book.Pages.Length ? Book.Pages[_currentPage] : "";
+        PageTwoText = _currentPage + 1 < Book.Pages.Length ? Book.Pages[_currentPage + 1] : "";
     }
 
     private void OnPropertyChanged(string propertyName)

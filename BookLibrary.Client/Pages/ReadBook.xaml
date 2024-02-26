@@ -58,7 +58,7 @@
                         Margin="8,0,8,0"
                         Command="{Binding StopCommand}" />
                 </StackPanel>
-                <ProgressBar Value="{Binding SpeakProgress}" Height="10" />
+                <ProgressBar Margin="5" Value="{Binding SpeakProgress}" Height="10" />
             </StackPanel>
         </Border>
         <Border
@@ -94,7 +94,8 @@
                             </FlowDocument>
                             <behaviours:Interaction.Triggers>
                                 <behaviours:EventTrigger EventName="SelectionChanged">
-                                    <behaviours:InvokeCommandAction Command="{Binding PageOneSelectionChangedCommand}" PassEventArgsToCommand="True" />
+                                    <behaviours:InvokeCommandAction Command="{Binding PageOneSelectionChangedCommand}"
+                                                                    PassEventArgsToCommand="True" />
                                 </behaviours:EventTrigger>
                             </behaviours:Interaction.Triggers>
                         </RichTextBox>
@@ -117,7 +118,8 @@
                             </FlowDocument>
                             <behaviours:Interaction.Triggers>
                                 <behaviours:EventTrigger EventName="SelectionChanged">
-                                    <behaviours:InvokeCommandAction Command="{Binding PageTwoSelectionChangedCommand}" PassEventArgsToCommand="True" />
+                                    <behaviours:InvokeCommandAction Command="{Binding PageTwoSelectionChangedCommand}"
+                                                                    PassEventArgsToCommand="True" />
                                 </behaviours:EventTrigger>
                             </behaviours:Interaction.Triggers>
                         </RichTextBox>
@@ -132,7 +134,7 @@
                 IsEnabled="{Binding HasPreviousPage}"
                 Appearance="Primary"
                 Command="{Binding PreviousPageCommand}" />
-            <TextBlock Text="{Binding CurrentPage}" Foreground="White" FontSize="16" FontWeight="Bold"
+            <TextBlock Text="{Binding CurrentPages}" Foreground="White" FontSize="16" FontWeight="Bold"
                        Margin="20,0,20,0" HorizontalAlignment="Center" VerticalAlignment="Center" />
             <ui:Button
                 Content="Next Page"
