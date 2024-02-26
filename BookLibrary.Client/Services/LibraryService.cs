@@ -62,6 +62,12 @@ public class LibraryService : INotifyPropertyChanged
             return new List<Author>();
         }
     }
+    
+    public async Task LoadPage(int page)
+    {
+        _page = page;
+        await LoadBooks();
+    }
 
     public async Task LoadBooks(bool reset = false)
     {

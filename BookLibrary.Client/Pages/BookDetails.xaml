@@ -18,7 +18,7 @@
             <ColumnDefinition Width="*" MaxWidth="900" />
         </Grid.ColumnDefinitions>
         <Border
-            Margin="8,8,8,8"
+            Margin="16,16,16,16"
             Padding="16"
             Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
             BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"

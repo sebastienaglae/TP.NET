@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Speech.Synthesis;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using BookLibrary.Client.Models;
 using BookLibrary.Client.Services;
@@ -14,8 +16,9 @@ public class ReadBook : INotifyPropertyChanged
     private int _currentPage;
     private bool _hasNextPage;
     private bool _hasPreviousPage;
-    private SpeechSynthesizer synthesizer;
-    private bool isPaused = false;
+    private SpeechSynthesizer _synthesizer;
+    private bool _isPaused;
+    private string _textToSpeak = string.Empty;
     public Book Book => Ioc.Default.GetRequiredService<LibraryService>().Book;
 
     public ReadBook()
@@ -24,59 +27,66 @@ public class ReadBook : INotifyPropertyChanged
 
         PreviousPageCommand = new RelayCommand<bool>(OnPreviousPageCommand);
         NextPageCommand = new RelayCommand<bool>(OnNextPageCommand);
-        ClickPageOneCommand = new RelayCommand<MouseButtonEventArgs>(OnTextClick);
+        PageOneSelectionChangedCommand = new RelayCommand<RoutedEventArgs>(StartFromCaret);
+        PageTwoSelectionChangedCommand = new RelayCommand<RoutedEventArgs>(StartFromCaret);
 
-        if (synthesizer == null)
+        if (_synthesizer == null)
             return;
         PlayCommand = new RelayCommand(OnPlayCommand);
-        PauseCommand = new RelayCommand(OnPauseCommand,
-            () => !isPaused && synthesizer.State.Equals(SynthesizerState.Speaking));
-        ResumeCommand = new RelayCommand(OnResumeCommand,
-            () => isPaused && synthesizer.State.Equals(SynthesizerState.Paused));
-        StopCommand = new RelayCommand(OnStopCommand,
-            () => synthesizer.State.Equals(SynthesizerState.Speaking) || isPaused);
+        PauseCommand = new RelayCommand(OnPauseCommand);
+        ResumeCommand = new RelayCommand(OnResumeCommand);
+        StopCommand = new RelayCommand(OnStopCommand);
     }
 
-    private void OnTextClick(MouseButtonEventArgs? obj)
+    private void StartFromCaret(RoutedEventArgs? parameter)
     {
-        // get the world under the mouse
-        var text = obj?.OriginalSource.ToString();
-        if (text == null)
-            return;
-        
+        if (parameter?.Source is RichTextBox richTextBox)
+        {
+            var caretPosition = richTextBox.CaretPosition;
+            var textRange = new TextRange(caretPosition, richTextBox.Document.ContentEnd);
+            var textFromCaretToStart = textRange.Text;
+            OnStopCommand();
+            _synthesizer.SpeakAsync(textFromCaretToStart);
+        }
     }
 
     private void InitializeSpeechSynthesizer()
     {
-        synthesizer = new SpeechSynthesizer();
-        synthesizer.SpeakCompleted += (sender, e) =>
+        _synthesizer = new SpeechSynthesizer();
+        _synthesizer.SpeakCompleted += (sender, e) =>
         {
-            isPaused = false;
+            _isPaused = false;
             CommandManager.InvalidateRequerySuggested();
+        };
+        _synthesizer.SpeakProgress += (sender, e) =>
+        {
+            SpeakProgress = e.CharacterPosition / e.CharacterCount;
         };
     }
 
     private void OnResumeCommand()
     {
-        synthesizer.Resume();
-        isPaused = false;
+        _synthesizer.Resume();
+        _isPaused = false;
     }
 
     private void OnStopCommand()
     {
-        synthesizer.SpeakAsyncCancelAll();
+        _synthesizer.SpeakAsyncCancelAll();
+        _synthesizer.Resume();
+        _isPaused = false;
     }
 
     private void OnPauseCommand()
     {
-        synthesizer.Pause();
-        isPaused = true;
+        _synthesizer.Pause();
+        _isPaused = true;
     }
 
     private void OnPlayCommand()
     {
-        var textToSpeak = "Hello, this is a test."; // Replace with your text
-        synthesizer.SpeakAsync(textToSpeak);
+        var textToSpeak = "Bonjour a toi !"; // Replace with your text
+        _synthesizer.SpeakAsync(textToSpeak);
     }
 
     public bool HasPreviousPage
@@ -124,11 +134,43 @@ public class ReadBook : INotifyPropertyChanged
     public ICommand PauseCommand { get; }
     public ICommand StopCommand { get; }
     public ICommand ResumeCommand { get; }
-    public bool CanPlay => !isPaused && synthesizer.State.Equals(SynthesizerState.Ready);
-    public bool CanPause => !isPaused && synthesizer.State.Equals(SynthesizerState.Speaking);
-    public bool CanResume => isPaused && synthesizer.State.Equals(SynthesizerState.Paused);
-    public bool CanStop => synthesizer.State.Equals(SynthesizerState.Speaking) || isPaused;
-    public ICommand ClickPageOneCommand { get; }
+    private string _pageOneText = "Hello, this is a test.";
+
+    public string PageOneText
+    {
+        get { return _pageOneText; }
+        set
+        {
+            _pageOneText = value;
+            OnPropertyChanged(nameof(PageOneText));
+        }
+    }
+
+    private string _pageTwoText = "Hello, this is not a test.";
+
+    public string PageTwoText
+    {
+        get { return _pageTwoText; }
+        set
+        {
+            _pageTwoText = value;
+            OnPropertyChanged(nameof(PageTwoText));
+        }
+    }
+
+    public ICommand PageOneSelectionChangedCommand { get; }
+    public ICommand PageTwoSelectionChangedCommand { get; }
+    private double _speakProgress;
+
+    public double SpeakProgress
+    {
+        get { return _speakProgress; }
+        set
+        {
+            _speakProgress = value;
+            OnPropertyChanged(nameof(SpeakProgress));
+        }
+    }
 
     public event PropertyChangedEventHandler PropertyChanged;
 
