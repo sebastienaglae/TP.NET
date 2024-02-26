@@ -29,13 +29,15 @@ public sealed class ListBooks : INotifyPropertyChanged
         GenreTextChangedCommand = new RelayCommand<AutoSuggestBoxTextChangedEventArgs>(GenreTextChanged);
         GenreSuggestionChosenCommand = new RelayCommand<AutoSuggestBoxSuggestionChosenEventArgs>(GenreSuggestionChosen);
         PageLoadedCommand = new RelayCommand(OnLoadedCommand);
+        LoadMoreCommand = new RelayCommand(OnLoadMoreCommand);
     }
 
-    public ObservableCollection<Author> SuggestedAuthors => Ioc.Default.GetService<LibraryService>()?.SuggestedAuthors!;
-    public ObservableCollection<Genre> SuggestedGenres => Ioc.Default.GetService<LibraryService>()?.SuggestedGenres!;
+
+    public ObservableCollection<Author> SuggestedAuthors => Ioc.Default.GetRequiredService<LibraryService>().SuggestedAuthors;
+    public ObservableCollection<Genre> SuggestedGenres => Ioc.Default.GetRequiredService<LibraryService>().SuggestedGenres;
     public ObservableCollection<Author?> FilteredAuthors { get; } = [];
     public ObservableCollection<Genre?> FilteredGenres { get; } = [];
-    public ObservableCollection<Book> Books { get; } = Ioc.Default.GetService<LibraryService>()?.Books!;
+    public ObservableCollection<Book> Books { get; } = Ioc.Default.GetRequiredService<LibraryService>().Books;
     public ICommand RemoveAuthorCommand { get; }
     public ICommand RemoveGenreCommand { get; }
     public ICommand ShowBookDetailsCommand { get; }
@@ -66,12 +68,21 @@ public sealed class ListBooks : INotifyPropertyChanged
     public ICommand GenreTextChangedCommand { get; }
     public ICommand GenreSuggestionChosenCommand { get; }
     public ICommand PageLoadedCommand { get; }
-
+    public ICommand LoadMoreCommand { get; }
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    private async void OnLoadMoreCommand()
+    {
+        var authors = FilteredAuthors.Where(a => a != null).Select(a => (int?)a!.Id).ToList();
+        var genres = FilteredGenres.Where(a => a != null).Select(a => (int?)a!.Id).ToList();
+
+        await _libraryService.LoadBooks(genres, authors);
+    }
 
     private async void OnLoadedCommand()
     {
-        await _libraryService.LoadBooks(true);
+        if (Books.Count == 0)
+            await _libraryService.LoadBooks(true);
     }
 
     private void AuthorSuggestionChosen(AutoSuggestBoxSuggestionChosenEventArgs? obj)

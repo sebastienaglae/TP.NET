@@ -28,7 +28,20 @@ public class LibraryService : INotifyPropertyChanged
             if (_book != value)
             {
                 _book = value;
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(Book));
+            }
+        }
+    }
+
+    public bool HasMoreBook
+    {
+        get => _hasMore;
+        set
+        {
+            if (_hasMore != value)
+            {
+                _hasMore = value;
+                OnPropertyChanged(nameof(HasMoreBook));
             }
         }
     }
@@ -77,7 +90,7 @@ public class LibraryService : INotifyPropertyChanged
         {
             if (!_hasMore)
                 return;
-            var response = await _bookApi.BookGetBooksAsync(genres, authors, _page);
+            var response = await _bookApi.BookGetBooksAsync(genres, authors, _page * 4, 4);
             if (response == null)
             {
                 MessageBox.Show("Error while fetching books");
@@ -97,7 +110,7 @@ public class LibraryService : INotifyPropertyChanged
     private void ResetBooks()
     {
         _page = 0;
-        _hasMore = true;
+        HasMoreBook = true;
         Books.Clear();
     }
 
@@ -150,7 +163,7 @@ public class LibraryService : INotifyPropertyChanged
         }
     }
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    private void OnPropertyChanged(string propertyName)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

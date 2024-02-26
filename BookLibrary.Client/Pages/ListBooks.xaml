@@ -117,11 +117,11 @@
                 <ui:Button Content="Search" Command="{Binding SearchCommand}" Appearance="Primary" />
             </StackPanel>
         </Border>
-        <StackPanel Grid.Column="1" Margin="16,16,16,16" HorizontalAlignment="Center">
+        <StackPanel Grid.Column="1" Margin="16,16,16,16">
             <ItemsControl ItemsSource="{Binding Books}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <controls:WrapPanel Orientation="Horizontal" />
+                        <controls:WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
@@ -166,6 +166,8 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+            <ui:Button Content="Load More" Appearance="Info" Command="{Binding LoadMoreCommand}"
+                       HorizontalAlignment="Center" />
         </StackPanel>
     </Grid>
 </Page>

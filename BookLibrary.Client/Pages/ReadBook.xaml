@@ -11,7 +11,7 @@
     <Page.DataContext>
         <viewModel:ReadBook />
     </Page.DataContext>
-    <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+    <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,20,0,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
