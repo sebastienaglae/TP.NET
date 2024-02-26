@@ -41,6 +41,7 @@ Ce projet vise à développer un service web accompagné d'un client Windows (WP
 
 ### Application Windows
 - Lister les livres avec détails et option de lecture.
-- Filtrer les livres par genre et/ou auteur.
-- Rechercher des livres par titre.
-- Lecture du livre via l'API System.Speech.SpeechSynthesizer avec support de lecture, pause, et arrêt + lire a partir de la séléction de l'utilisateur
+- Filtrer les livres par genres et/ou auteurs (Plusieurs genres et plusieurs auteurs).
+- Lecture du livre via l'API System.Speech.SpeechSynthesizer avec support de lecture, pause, et arrêt + lire a partir de la séléction de l'utilisateur et suivis de la progression.
+- Pagination (simple bouton)
+- Fluent style App ([WPF-UI](https://github.com/lepoco/wpfui)  from LePoco)

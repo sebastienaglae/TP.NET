@@ -32,9 +32,6 @@
             BorderThickness="1,1,1,0"
             CornerRadius="8">
             <StackPanel Margin="8,8,8,8" MaxWidth="350">
-                <StackPanel HorizontalAlignment="Center" Margin="10">
-                    <ui:TextBlock FontTypography="Subtitle" Text="Research Books" Foreground="White" />
-                </StackPanel>
                 <StackPanel>
                     <Label>Choose Authors</Label>
                     <ui:AutoSuggestBox PlaceholderText="Type here..."
@@ -156,9 +153,9 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
-                                    <ui:TextBlock Grid.Row="2" Foreground="Black"
-                                                  Text="{Binding Price}" HorizontalAlignment="Right"
-                                                  TextWrapping="Wrap"
+                                    <ui:TextBlock Grid.Row="2" FontTypography="BodyStrong" Foreground="Black"
+                                                  Text="{Binding Price, StringFormat={}{0}€}"
+                                                  HorizontalAlignment="Right" TextWrapping="Wrap"
                                                   VerticalAlignment="Bottom" />
                                 </Grid>
                             </Border>
