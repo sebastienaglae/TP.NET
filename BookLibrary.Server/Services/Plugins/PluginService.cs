@@ -106,10 +106,13 @@ public class PluginService : IDisposable
             _pluginPaths.Add(file);
             _logger.LogInformation("Found plugin: {PluginPath}", file);
         }
-        foreach (string file in Directory.EnumerateFiles(_options.Directory, $"*{PluginExtension}", SearchOption.AllDirectories))
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            _pluginPaths.Add(file);
-            _logger.LogInformation("Found plugin: {PluginPath}", file);
+            foreach (string file in Directory.EnumerateFiles(_options.Directory, $"*{PluginExtension}", SearchOption.AllDirectories))
+            {
+                _pluginPaths.Add(file);
+                _logger.LogInformation("Found plugin: {PluginPath}", file);
+            }
         }
         _logger.LogInformation("Scanning complete. Found {PluginCount} plugins.", _pluginPaths.Count);
     }
