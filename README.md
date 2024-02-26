@@ -45,3 +45,7 @@ Ce projet vise à développer un service web accompagné d'un client Windows (WP
 - Lecture du livre via l'API System.Speech.SpeechSynthesizer avec support de lecture, pause, et arrêt + lire a partir de la séléction de l'utilisateur et suivis de la progression.
 - Pagination (simple bouton)
 - Fluent style App ([WPF-UI](https://github.com/lepoco/wpfui)  from LePoco)
+
+## Troubleshooting
+
+Si ASP ne démarre pas avec l'erreur suivante : `Unhandled exception. System.InvalidOperationException: Path /hello is already mapped`, supprimer le dossier `plugins` dans le projet `BookLibrary.Server` et relancer le serveur.
